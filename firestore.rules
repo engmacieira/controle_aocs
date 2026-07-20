@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    // Helper functions for data types
+    function isString(val) { return val is string; }
+    function isNumber(val) { return val is number; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+
+    match /base/{baseId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(baseId);
+      allow delete: if isSignedIn() && isValidId(baseId);
+    }
+    
+    match /pedidos/{pedidoId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(pedidoId);
+      allow delete: if isSignedIn() && isValidId(pedidoId);
+    }
+
+    match /aocs/{aocsId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(aocsId);
+      allow delete: if isSignedIn() && isValidId(aocsId);
+    }
+
+    match /ci/{ciId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(ciId);
+      allow delete: if isSignedIn() && isValidId(ciId);
+    }
+
+    match /dados/{dadosId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(dadosId);
+      allow delete: if isSignedIn() && isValidId(dadosId);
+    }
+  }
+}

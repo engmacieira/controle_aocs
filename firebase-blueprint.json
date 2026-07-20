@@ -1,0 +1,89 @@
+{
+  "collections": {
+    "base": {
+      "rules": "allow read, write: if true;",
+      "indexes": [],
+      "schema": {
+        "numero": "string",
+        "data": "string",
+        "resumo": "string",
+        "empresa": "string",
+        "contratoArp": "string",
+        "processo": "string"
+      }
+    },
+    "pedidos": {
+      "rules": "allow read, write: if true;",
+      "indexes": [],
+      "schema": {
+        "numero": "string",
+        "data": "string",
+        "empresa": "string",
+        "valor": "number",
+        "dotacao": "string",
+        "fonte": "string",
+        "contaBancaria": "string",
+        "ordemCompra": "string",
+        "empenho": "string",
+        "dataEnvio": "string",
+        "statusEntrega": "string",
+        "atraso": "string",
+        "comentario": "string"
+      }
+    },
+    "aocs": {
+      "rules": "allow read, write: if true;",
+      "indexes": [],
+      "schema": {
+        "numero": "string",
+        "data": "string",
+        "empresa": "string",
+        "ordemCompra": "string",
+        "valor": "number",
+        "notaFiscal": "string",
+        "dataNF": "string",
+        "numeroCI": "string",
+        "dotacao": "string",
+        "fonte": "string",
+        "contaBancaria": "string"
+      }
+    },
+    "ci": {
+      "rules": "allow read, write: if true;",
+      "indexes": [],
+      "schema": {
+        "ci": "string",
+        "data": "string",
+        "aocs": "string",
+        "pedido": "string",
+        "empenho": "string",
+        "empresa": "string",
+        "miniHistorico": "string",
+        "valor": "number",
+        "notaFiscal": "string",
+        "dataNF": "string",
+        "dotacao": "string",
+        "fonte": "string",
+        "contaBancaria": "string"
+      }
+    },
+    "dados": {
+      "rules": "allow read, write: if true;",
+      "indexes": [],
+      "schema": {
+        "ci": "string",
+        "aocs": "string",
+        "empresa": "string",
+        "ordemCompra": "string",
+        "valor": "number",
+        "notaFiscal": "string",
+        "empenho": "string",
+        "dataPagamento": "string",
+        "valorPago": "number",
+        "chaveAcessoNF": "string",
+        "contaBancaria": "string",
+        "conferenciaExtrato": "string"
+      }
+    }
+  }
+}

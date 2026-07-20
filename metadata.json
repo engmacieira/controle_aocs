@@ -1,0 +1,6 @@
+{
+  "name": "Planilha de Contratos e Processos",
+  "description": "Aplicativo para gerenciar, visualizar estatísticas, filtrar e editar contratos, ARPs e processos administrativos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
