@@ -14,12 +14,42 @@ interface EspelhoBancarioProps {
 
 export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSave, onDelete, showToast }: EspelhoBancarioProps) {
   const [contaFiltro, setContaFiltro] = useState(contasRecords.length > 0 ? contasRecords[0].nome : '');
+  const [mesAnoFiltro, setMesAnoFiltro] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<ExtratoRecord | null>(null);
   const [defaultMode, setDefaultMode] = useState<'saida' | 'entrada' | 'transferencia'>('saida');
 
   const [isContaModalOpen, setIsContaModalOpen] = useState(false);
   const [novaContaNome, setNovaContaNome] = useState('');
+
+  // Extract unique month/year from extratoRecords
+  const availableMonths = React.useMemo(() => {
+    const months = new Set<string>();
+    extratoRecords.forEach(r => {
+      if (r.data) {
+        const date = new Date(r.data + 'T00:00:00');
+        if (!isNaN(date.getTime())) {
+          const m = date.toLocaleString('pt-BR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+          const capitalized = m.charAt(0).toUpperCase() + m.slice(1);
+          months.add(`${capitalized}|${r.data.substring(0, 7)}`);
+        }
+      }
+    });
+
+    const now = new Date();
+    const currentM = now.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+    const currentCapitalized = currentM.charAt(0).toUpperCase() + currentM.slice(1);
+    const currentYm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    months.add(`${currentCapitalized}|${currentYm}`);
+
+    return Array.from(months).sort((a, b) => b.split('|')[1].localeCompare(a.split('|')[1]));
+  }, [extratoRecords]);
+
+  React.useEffect(() => {
+    if (!mesAnoFiltro && availableMonths.length > 0) {
+      setMesAnoFiltro(availableMonths[0].split('|')[1]);
+    }
+  }, [availableMonths, mesAnoFiltro]);
 
   React.useEffect(() => {
     if (contasRecords.length > 0 && !contasRecords.find(c => c.nome === contaFiltro)) {
@@ -74,17 +104,23 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
 
   // Calculations
   const accountRecords = extratoRecords.filter(r => r.contaBancaria === contaFiltro);
-  const recordsToShow = accountRecords.sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+
+  const recordsToShow = accountRecords
+    .filter(r => {
+      if (!mesAnoFiltro || mesAnoFiltro === 'todos') return true;
+      return r.data && r.data.startsWith(mesAnoFiltro);
+    })
+    .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
 
   const saldoCC = accountRecords
     .filter(r => r.subConta !== 'investimento') // default to corrente
     .reduce((acc, r) => acc + (r.tipo === 'entrada' ? r.valor : -r.valor), 0);
-  
+
   const saldoInvestimentos = accountRecords
     .filter(r => r.subConta === 'investimento')
     .reduce((acc, r) => acc + (r.tipo === 'entrada' ? r.valor : -r.valor), 0);
-  
-  const rendimentoMes = accountRecords
+
+  const rendimentoMes = recordsToShow // Use filtered for this specific metric
     .filter(r => r.subConta === 'investimento' && r.subTipo === 'rendimento')
     .reduce((acc, r) => acc + r.valor, 0);
 
@@ -96,7 +132,7 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
           <div className="flex flex-col">
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Conta Bancária</label>
             <div className="flex items-center gap-2">
-              <select 
+              <select
                 value={contaFiltro}
                 onChange={(e) => setContaFiltro(e.target.value)}
                 className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 outline-hidden text-slate-700 bg-slate-50"
@@ -108,7 +144,7 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
                   <option value="">Nenhuma conta cadastrada</option>
                 )}
               </select>
-              <button 
+              <button
                 onClick={() => setIsContaModalOpen(true)}
                 className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-colors"
                 title="Nova Conta"
@@ -119,10 +155,16 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
           </div>
           <div className="flex flex-col">
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Mês / Ano</label>
-            <select className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 outline-hidden text-slate-700 bg-slate-50">
-              <option>Janeiro 2026</option>
-              <option>Fevereiro 2026</option>
-              <option>Março 2026</option>
+            <select
+              value={mesAnoFiltro}
+              onChange={(e) => setMesAnoFiltro(e.target.value)}
+              className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 outline-hidden text-slate-700 bg-slate-50"
+            >
+              <option value="todos">Todos os lançamentos</option>
+              {availableMonths.map(m => {
+                const [label, value] = m.split('|');
+                return <option key={value} value={value}>{label}</option>;
+              })}
             </select>
           </div>
         </div>
@@ -218,11 +260,10 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
                     <td className="px-4 py-3 text-sm text-slate-500">{item.dotacao || '-'}</td>
                     <td className="px-4 py-3 text-sm whitespace-nowrap">
                       <div className="flex flex-col gap-1">
-                        <span className={`inline-flex items-center w-fit px-2 py-0.5 rounded-full text-xs font-medium border ${
-                          item.tipo === 'entrada' 
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                        <span className={`inline-flex items-center w-fit px-2 py-0.5 rounded-full text-xs font-medium border ${item.tipo === 'entrada'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                             : 'bg-red-50 text-red-700 border-red-200'
-                        }`}>
+                          }`}>
                           {item.tipo === 'entrada' ? '+ Entrada' : '- Saída'}
                         </span>
                         <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
@@ -230,14 +271,13 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
                         </span>
                       </div>
                     </td>
-                    <td className={`px-4 py-3 text-sm font-semibold text-right whitespace-nowrap ${
-                      item.tipo === 'entrada' ? 'text-emerald-600' : 'text-slate-900'
-                    }`}>
+                    <td className={`px-4 py-3 text-sm font-semibold text-right whitespace-nowrap ${item.tipo === 'entrada' ? 'text-emerald-600' : 'text-slate-900'
+                      }`}>
                       {formatCurrency(item.valor)}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer outline-hidden"
                         checked={!!item.conciliado}
                         onChange={() => toggleConciliado(item.id, !!item.conciliado)}
@@ -261,7 +301,7 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
         </div>
       </div>
 
-      <ExtratoModal 
+      <ExtratoModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveModal}
@@ -282,8 +322,8 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
             </div>
             <div className="p-6">
               <label className="block text-sm font-medium text-slate-700 mb-1">Nome da Conta</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={novaContaNome}
                 onChange={(e) => setNovaContaNome(e.target.value)}
                 placeholder="Ex: Banco do Brasil - Ag 1234"
@@ -291,13 +331,13 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
                 autoFocus
               />
               <div className="flex justify-end gap-3 mt-6">
-                <button 
-                  onClick={() => setIsContaModalOpen(false)} 
+                <button
+                  onClick={() => setIsContaModalOpen(false)}
                   className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-50 rounded-lg transition-colors"
                 >
                   Cancelar
                 </button>
-                <button 
+                <button
                   onClick={() => {
                     if (novaContaNome.trim()) {
                       onSave('contas', { nome: novaContaNome.trim() });

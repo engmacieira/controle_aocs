@@ -15,7 +15,7 @@ interface ExtratoModalProps {
 export function ExtratoModal({ isOpen, onClose, onSave, itemToEdit, ciRecords, contasRecords, defaultMode }: ExtratoModalProps) {
   const [formData, setFormData] = useState<Partial<ExtratoRecord>>({
     tipo: defaultMode || 'saida',
-    subTipo: defaultMode === 'saida' ? 'avulso' : defaultMode === 'entrada' ? 'rendimento' : 'transferencia_saida',
+    subTipo: defaultMode === 'saida' ? 'avulso' : defaultMode === 'entrada' ? 'rendimento' : 'aplicacao',
     data: new Date().toISOString().split('T')[0],
     contaBancaria: contasRecords.length > 0 ? contasRecords[0].nome : 'BL PSB FNAS - Ag 3972'
   });
@@ -26,7 +26,7 @@ export function ExtratoModal({ isOpen, onClose, onSave, itemToEdit, ciRecords, c
     } else {
       setFormData({
         tipo: defaultMode || 'saida',
-        subTipo: defaultMode === 'saida' ? 'avulso' : defaultMode === 'entrada' ? 'rendimento' : 'transferencia_saida',
+        subTipo: defaultMode === 'saida' ? 'avulso' : defaultMode === 'entrada' ? 'rendimento' : 'aplicacao',
         data: new Date().toISOString().split('T')[0],
         contaBancaria: contasRecords.length > 0 ? contasRecords[0].nome : 'BL PSB FNAS - Ag 3972'
       });
@@ -37,7 +37,15 @@ export function ExtratoModal({ isOpen, onClose, onSave, itemToEdit, ciRecords, c
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      const updates: any = { [name]: value };
+      if (name === 'tipo') {
+        if (value === 'saida') updates.subTipo = 'avulso';
+        else if (value === 'entrada') updates.subTipo = 'rendimento';
+        else if (value === 'transferencia') updates.subTipo = 'aplicacao';
+      }
+      return { ...prev, ...updates };
+    });
   };
 
   const handleCiChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -59,38 +67,38 @@ export function ExtratoModal({ isOpen, onClose, onSave, itemToEdit, ciRecords, c
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.tipo === 'transferencia') {
-        // Cria dois registros
-        const idBase = itemToEdit?.id || `extrato_${Date.now()}`;
-        
-        const sentido = formData.subTipo || 'aplicacao'; // 'aplicacao' (CC -> Inv) or 'resgate' (Inv -> CC)
-        
-        const regSaida = {
-            ...formData,
-            id: itemToEdit ? itemToEdit.id : `${idBase}_s`,
-            tipo: 'saida',
-            subConta: sentido === 'aplicacao' ? 'corrente' : 'investimento',
-            descricao: sentido === 'aplicacao' ? 'Aplicação Financeira' : 'Resgate de Aplicação',
-            valor: Number(formData.valor)
-        };
-        const regEntrada = {
-            ...formData,
-            id: itemToEdit ? itemToEdit.id + '_e' : `${idBase}_e`,
-            tipo: 'entrada',
-            subConta: sentido === 'aplicacao' ? 'investimento' : 'corrente',
-            descricao: sentido === 'aplicacao' ? 'Aplicação Recebida' : 'Resgate Recebido',
-            valor: Number(formData.valor)
-        };
-        onSave(regSaida);
-        if (!itemToEdit) {
-            onSave(regEntrada);
-        }
+      // Cria dois registros
+      const idBase = itemToEdit?.id || `extrato_${Date.now()}`;
+
+      const sentido = formData.subTipo || 'aplicacao'; // 'aplicacao' (CC -> Inv) or 'resgate' (Inv -> CC)
+
+      const regSaida = {
+        ...formData,
+        id: itemToEdit ? itemToEdit.id : `${idBase}_s`,
+        tipo: 'saida',
+        subConta: sentido === 'aplicacao' ? 'corrente' : 'investimento',
+        descricao: sentido === 'aplicacao' ? 'Aplicação Financeira' : 'Resgate de Aplicação',
+        valor: Number(formData.valor)
+      };
+      const regEntrada = {
+        ...formData,
+        id: itemToEdit ? itemToEdit.id + '_e' : `${idBase}_e`,
+        tipo: 'entrada',
+        subConta: sentido === 'aplicacao' ? 'investimento' : 'corrente',
+        descricao: sentido === 'aplicacao' ? 'Aplicação Recebida' : 'Resgate Recebido',
+        valor: Number(formData.valor)
+      };
+      onSave(regSaida);
+      if (!itemToEdit) {
+        onSave(regEntrada);
+      }
     } else {
-        const isInvestimento = formData.subTipo === 'rendimento' || formData.subConta === 'investimento';
-        onSave({
-            ...formData,
-            subConta: isInvestimento ? 'investimento' : 'corrente',
-            valor: Number(formData.valor)
-        });
+      const isInvestimento = formData.subTipo === 'rendimento' || formData.subConta === 'investimento';
+      onSave({
+        ...formData,
+        subConta: isInvestimento ? 'investimento' : 'corrente',
+        valor: Number(formData.valor)
+      });
     }
   };
 
@@ -109,56 +117,56 @@ export function ExtratoModal({ isOpen, onClose, onSave, itemToEdit, ciRecords, c
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="grid grid-cols-2 gap-4">
             {!itemToEdit && (
-                <div className="col-span-2">
+              <div className="col-span-2">
                 <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de Lançamento</label>
                 <div className="flex gap-4">
-                    <label className="flex items-center gap-2">
+                  <label className="flex items-center gap-2">
                     <input type="radio" name="tipo" value="saida" checked={formData.tipo === 'saida'} onChange={handleChange} />
                     Saída / Tarifa
-                    </label>
-                    <label className="flex items-center gap-2">
+                  </label>
+                  <label className="flex items-center gap-2">
                     <input type="radio" name="tipo" value="entrada" checked={formData.tipo === 'entrada'} onChange={handleChange} />
                     Nova Entrada
-                    </label>
-                    <label className="flex items-center gap-2">
+                  </label>
+                  <label className="flex items-center gap-2">
                     <input type="radio" name="tipo" value="transferencia" checked={formData.tipo === 'transferencia'} onChange={handleChange} />
                     Transferência
-                    </label>
+                  </label>
                 </div>
-                </div>
+              </div>
             )}
 
             {formData.tipo === 'saida' && (
-               <div className="col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Origem da Saída</label>
-                  <select name="subTipo" value={formData.subTipo || 'avulso'} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
-                      <option value="avulso">Lançamento Avulso (Tarifa/Outros)</option>
-                      <option value="ci">Referenciar CI Existente</option>
-                  </select>
-               </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-slate-700 mb-1">Origem da Saída</label>
+                <select name="subTipo" value={formData.subTipo || 'avulso'} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                  <option value="avulso">Lançamento Avulso (Tarifa/Outros)</option>
+                  <option value="ci">Referenciar CI Existente</option>
+                </select>
+              </div>
             )}
 
             {formData.tipo === 'saida' && formData.subTipo === 'ci' && (
-                <div className="col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Selecionar CI</label>
-                    <select onChange={handleCiChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
-                        <option value="">Selecione uma CI...</option>
-                        {ciRecords.map(ci => (
-                            <option key={ci.id} value={ci.id}>{ci.ci} - {ci.resumo}</option>
-                        ))}
-                    </select>
-                </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-slate-700 mb-1">Selecionar CI</label>
+                <select onChange={handleCiChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                  <option value="">Selecione uma CI...</option>
+                  {ciRecords.map(ci => (
+                    <option key={ci.id} value={ci.id}>{ci.ci} - {ci.resumo}</option>
+                  ))}
+                </select>
+              </div>
             )}
 
             {formData.tipo === 'entrada' && (
-               <div className="col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de Entrada</label>
-                  <select name="subTipo" value={formData.subTipo || 'rendimento'} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
-                      <option value="rendimento">Rendimento de Aplicação</option>
-                      <option value="repasse">Repasse Financeiro</option>
-                      <option value="avulso">Outras Entradas</option>
-                  </select>
-               </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de Entrada</label>
+                <select name="subTipo" value={formData.subTipo || 'rendimento'} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                  <option value="rendimento">Rendimento de Aplicação</option>
+                  <option value="repasse">Repasse Financeiro</option>
+                  <option value="avulso">Outras Entradas</option>
+                </select>
+              </div>
             )}
 
             <div>
@@ -172,38 +180,38 @@ export function ExtratoModal({ isOpen, onClose, onSave, itemToEdit, ciRecords, c
             </div>
 
             {formData.tipo === 'transferencia' ? (
-                <div className="col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Sentido da Transferência</label>
-                    <select name="subTipo" value={formData.subTipo || 'aplicacao'} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
-                        <option value="aplicacao">Aplicação (Conta Corrente ➔ Investimentos)</option>
-                        <option value="resgate">Resgate (Investimentos ➔ Conta Corrente)</option>
-                    </select>
-                </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-slate-700 mb-1">Sentido da Transferência</label>
+                <select name="subTipo" value={formData.subTipo || 'aplicacao'} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                  <option value="aplicacao">Aplicação (Conta Corrente ➔ Investimentos)</option>
+                  <option value="resgate">Resgate (Investimentos ➔ Conta Corrente)</option>
+                </select>
+              </div>
             ) : null}
 
             <div className="col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Conta Bancária</label>
-                <select name="contaBancaria" value={formData.contaBancaria || ''} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
-                    {contasRecords.map(conta => (
-                        <option key={conta.id} value={conta.nome}>{conta.nome}</option>
-                    ))}
-                </select>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Conta Bancária</label>
+              <select name="contaBancaria" value={formData.contaBancaria || ''} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                {contasRecords.map(conta => (
+                  <option key={conta.id} value={conta.nome}>{conta.nome}</option>
+                ))}
+              </select>
             </div>
 
             {formData.tipo !== 'transferencia' && (
-                <>
+              <>
                 <div className="col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Descrição</label>
-                    <input type="text" name="descricao" value={formData.descricao || ''} onChange={handleChange} required className="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Descrição</label>
+                  <input type="text" name="descricao" value={formData.descricao || ''} onChange={handleChange} required className="w-full px-3 py-2 border border-slate-300 rounded-lg" />
                 </div>
-                
+
                 {formData.tipo === 'saida' && formData.subTipo !== 'ci' && (
-                    <div className="col-span-2">
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Dotação / Fonte (Opcional)</label>
-                        <input type="text" name="dotacao" value={formData.dotacao || ''} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg" />
-                    </div>
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Dotação / Fonte (Opcional)</label>
+                    <input type="text" name="dotacao" value={formData.dotacao || ''} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+                  </div>
                 )}
-                </>
+              </>
             )}
           </div>
 
