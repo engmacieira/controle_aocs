@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch, getDocs } from 'firebase/firestore';
+import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { AocsRecord, CiRecord, ContaBancariaRecord } from '../types';
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, User } from 'firebase/auth';
@@ -35,20 +35,29 @@ export function useFirebaseData() {
     unsubs.push(onSnapshot(collection(db, 'aocs'), (snap) => {
       setAocsRecords(snap.docs.map(d => d.data() as AocsRecord));
     }, (err) => {
-      console.error(err);
-      alert('Error loading AOCS: ' + err.message);
+      console.error('Error loading AOCS:', err);
+      alert('Ocorreu um erro ao carregar os dados de AOCS. Por favor, tente novamente mais tarde.');
     }));
 
     unsubs.push(onSnapshot(collection(db, 'ci'), (snap) => {
       setCiRecords(snap.docs.map(d => d.data() as CiRecord));
+    }, (err) => {
+      console.error('Error loading CI:', err);
+      alert('Ocorreu um erro ao carregar os dados de CI. Por favor, tente novamente mais tarde.');
     }));
 
     unsubs.push(onSnapshot(collection(db, 'extrato'), (snap) => {
       setExtratoRecords(snap.docs.map(d => d.data() as any));
+    }, (err) => {
+      console.error('Error loading extrato:', err);
+      alert('Ocorreu um erro ao carregar os dados do extrato. Por favor, tente novamente mais tarde.');
     }));
 
     unsubs.push(onSnapshot(collection(db, 'contas'), (snap) => {
       setContasRecords(snap.docs.map(d => d.data() as ContaBancariaRecord));
+    }, (err) => {
+      console.error('Error loading contas:', err);
+      alert('Ocorreu um erro ao carregar as contas bancárias. Por favor, tente novamente mais tarde.');
     }));
 
     return () => unsubs.forEach(fn => fn());
@@ -75,8 +84,8 @@ export function useFirebaseData() {
     try {
       await setDoc(doc(db, collectionName, id), newItem);
     } catch (e: any) {
-      console.error(e);
-      alert('Error saving: ' + e.message);
+      console.error('Error saving:', e);
+      alert('Ocorreu um erro ao salvar o registro. Tente novamente mais tarde.');
     }
   };
 
@@ -85,8 +94,8 @@ export function useFirebaseData() {
     try {
       await deleteDoc(doc(db, collectionName, id));
     } catch (e: any) {
-      console.error(e);
-      alert('Error deleting: ' + e.message);
+      console.error('Error deleting:', e);
+      alert('Ocorreu um erro ao excluir o registro. Tente novamente mais tarde.');
     }
   };
 
@@ -99,11 +108,10 @@ export function useFirebaseData() {
       });
       await batch.commit();
     } catch (e: any) {
-      console.error(e);
-      alert('Error deleting records: ' + e.message);
+      console.error('Error deleting records:', e);
+      alert('Ocorreu um erro ao excluir os registros selecionados. Tente novamente mais tarde.');
     }
   };
-
 
   return {
     user,
