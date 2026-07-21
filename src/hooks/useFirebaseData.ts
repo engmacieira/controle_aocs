@@ -1,21 +1,23 @@
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch, getDocs } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
-import { AocsRecord, CiRecord } from '../types';
+import { AocsRecord, CiRecord, ContaBancariaRecord } from '../types';
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, User } from 'firebase/auth';
 
 export function useFirebaseData() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
   const [aocsRecords, setAocsRecords] = useState<AocsRecord[]>([]);
   const [ciRecords, setCiRecords] = useState<CiRecord[]>([]);
+  const [extratoRecords, setExtratoRecords] = useState<any[]>([]);
+  const [contasRecords, setContasRecords] = useState<ContaBancariaRecord[]>([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
     });
+
     return unsubscribe;
   }, []);
 
@@ -23,6 +25,8 @@ export function useFirebaseData() {
     if (!user) {
       setAocsRecords([]);
       setCiRecords([]);
+      setExtratoRecords([]);
+      setContasRecords([]);
       return;
     }
 
@@ -37,6 +41,14 @@ export function useFirebaseData() {
 
     unsubs.push(onSnapshot(collection(db, 'ci'), (snap) => {
       setCiRecords(snap.docs.map(d => d.data() as CiRecord));
+    }));
+
+    unsubs.push(onSnapshot(collection(db, 'extrato'), (snap) => {
+      setExtratoRecords(snap.docs.map(d => d.data() as any));
+    }));
+
+    unsubs.push(onSnapshot(collection(db, 'contas'), (snap) => {
+      setContasRecords(snap.docs.map(d => d.data() as ContaBancariaRecord));
     }));
 
     return () => unsubs.forEach(fn => fn());
@@ -100,6 +112,8 @@ export function useFirebaseData() {
     logOut,
     aocsRecords,
     ciRecords,
+    extratoRecords,
+    contasRecords,
     saveRecord,
     deleteRecord,
     deleteRecords

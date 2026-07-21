@@ -31,6 +31,8 @@ import { PedidosTable } from './components/PedidosTable';
 import { FaturamentoTable } from './components/FaturamentoTable';
 import { CiTable } from './components/CiTable';
 import { ContasRelatorio } from './components/ContasRelatorio';
+import { EspelhoBancario } from './components/EspelhoBancario';
+import { ContaDetalhes } from './components/ContaDetalhes';
 import { FormModal } from './components/FormModal';
 import { ConfirmModal } from './components/ConfirmModal';
 import { useFirebaseData } from './hooks/useFirebaseData';
@@ -43,13 +45,16 @@ export default function App() {
     logOut,
     aocsRecords,
     ciRecords,
+    extratoRecords,
+    contasRecords,
     saveRecord,
     deleteRecord,
     deleteRecords
   } = useFirebaseData();
 
   // --- Active Tab State ---
-  const [activeTab, setActiveTab] = React.useState<'relatorio' | 'aocs' | 'pedidos' | 'faturamento' | 'ci'>('relatorio');
+  const [activeTab, setActiveTab] = React.useState<'relatorio' | 'aocs' | 'pedidos' | 'faturamento' | 'ci' | 'espelho' | 'conta_detalhes'>('relatorio');
+  const [selectedConta, setSelectedConta] = React.useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   // --- Modal Control State ---
@@ -162,11 +167,18 @@ export default function App() {
 
   const handleTabChange = (tab: typeof activeTab) => {
     setActiveTab(tab);
+    if (tab !== 'conta_detalhes') setSelectedConta(null);
     setMobileMenuOpen(false);
   };
 
+  const handleViewContaDetails = (conta: string) => {
+    setSelectedConta(conta);
+    setActiveTab('conta_detalhes');
+  };
+
   const navigation = [
-    { id: 'relatorio', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'relatorio', label: 'Contas Relatório', icon: LayoutDashboard },
+    { id: 'espelho', label: 'Espelho Bancário', icon: Landmark },
     { id: 'aocs', label: 'AOCS (Contratação)', icon: FileCheck },
     { id: 'pedidos', label: 'Pedidos de Compra', icon: ShoppingCart },
     { id: 'faturamento', label: 'Faturamento AOCS', icon: Receipt },
@@ -177,7 +189,7 @@ export default function App() {
     <div id="app-root" className="min-h-screen bg-slate-50 flex text-slate-900 font-sans antialiased">
       
       {/* Sidebar for Desktop */}
-      <aside className="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col sticky top-0 h-screen shrink-0">
+      <aside className="w-64 bg-white border-r border-slate-200 hidden sm:flex flex-col sticky top-0 h-screen shrink-0">
         <div className="p-6 border-b border-slate-100 flex items-center gap-3">
           <div className="p-2 bg-indigo-600 rounded-xl text-white shadow-md shrink-0">
             <FileSpreadsheet className="w-5 h-5" />
@@ -225,7 +237,7 @@ export default function App() {
       <div className="flex-1 flex flex-col min-h-screen min-w-0">
         
         {/* Mobile Header */}
-        <header className="md:hidden sticky top-0 z-40 bg-white border-b border-slate-200 shadow-xs px-4 py-3 flex items-center justify-between">
+        <header className="sm:hidden sticky top-0 z-40 bg-white border-b border-slate-200 shadow-xs px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-indigo-600 rounded-lg text-white">
               <FileSpreadsheet className="w-5 h-5" />
@@ -242,7 +254,7 @@ export default function App() {
 
         {/* Mobile Menu Overlay */}
         {mobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 z-30 bg-black/20" onClick={() => setMobileMenuOpen(false)}>
+          <div className="sm:hidden fixed inset-0 z-30 bg-black/20" onClick={() => setMobileMenuOpen(false)}>
             <div className="absolute right-0 top-[61px] bottom-0 w-64 bg-white border-l border-slate-200 flex flex-col shadow-xl" onClick={e => e.stopPropagation()}>
               <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
                 {navigation.map((item) => (
@@ -279,9 +291,9 @@ export default function App() {
         )}
 
         {/* Top Action Bar (Desktop) */}
-        <div className="hidden md:flex items-center justify-between px-8 py-4 bg-white/50 backdrop-blur-sm border-b border-slate-150 sticky top-0 z-10">
+        <div className="hidden sm:flex items-center justify-between px-8 py-4 bg-white/50 backdrop-blur-sm border-b border-slate-150 sticky top-0 z-10">
           <h2 className="text-lg font-semibold text-slate-800">
-            {navigation.find(n => n.id === activeTab)?.label}
+            {activeTab === 'conta_detalhes' ? `Detalhes da Conta: ${selectedConta || ''}` : navigation.find(n => n.id === activeTab)?.label}
           </h2>
           
           <div className="flex items-center gap-3">
@@ -295,7 +307,7 @@ export default function App() {
               </button>
             ) : null}
 
-            {activeTab !== 'relatorio' && (
+            {activeTab !== 'relatorio' && activeTab !== 'conta_detalhes' && (
               <button
                 onClick={handleExportCSV}
                 className="px-4 py-2 rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition-all flex items-center gap-2 shadow-sm"
@@ -305,24 +317,37 @@ export default function App() {
                 Exportar CSV
               </button>
             )}
+            {activeTab === 'conta_detalhes' && (
+              <button
+                onClick={() => handleTabChange('relatorio')}
+                className="px-4 py-2 rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition-all flex items-center gap-2 shadow-sm"
+              >
+                Voltar
+              </button>
+            )}
           </div>
         </div>
 
         {/* Action Bar (Mobile) */}
-        <div className="md:hidden flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200 gap-2 overflow-x-auto">
+        <div className="sm:hidden flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200 gap-2 overflow-x-auto">
           {!user ? (
             <button onClick={signIn} className="px-3 py-1.5 rounded-lg text-white bg-indigo-600 font-semibold text-xs whitespace-nowrap">
               Entrar
             </button>
           ) : null}
-          {activeTab !== 'relatorio' && (
+          {activeTab !== 'relatorio' && activeTab !== 'conta_detalhes' && (
             <button onClick={handleExportCSV} className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-semibold text-xs whitespace-nowrap">
               Exportar
             </button>
           )}
+          {activeTab === 'conta_detalhes' && (
+            <button onClick={() => handleTabChange('relatorio')} className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-semibold text-xs whitespace-nowrap">
+              Voltar
+            </button>
+          )}
         </div>
 
-        <main className="flex-1 p-4 md:p-8 space-y-6">
+        <main className="flex-1 p-4 sm:p-8 space-y-6">
           
           {/* Tab Content Renderer */}
           <div id="tab-content">
@@ -378,6 +403,7 @@ export default function App() {
                 {activeTab === 'ci' && (
                   <CiTable
                     records={ciRecords}
+                    contasRecords={contasRecords}
                     onEdit={handleEditClick}
                     onDelete={(id, ciNum) => handleDelete(id, `CI #${ciNum}`)}
                     onBulkDelete={handleBulkDelete}
@@ -389,6 +415,25 @@ export default function App() {
                   <ContasRelatorio
                     aocsRecords={aocsRecords}
                     ciRecords={ciRecords}
+                    onViewDetails={handleViewContaDetails}
+                  />
+                )}
+
+                {activeTab === 'conta_detalhes' && selectedConta && (
+                  <ContaDetalhes
+                    conta={selectedConta}
+                    aocsRecords={aocsRecords}
+                    ciRecords={ciRecords}
+                  />
+                )}
+
+                {activeTab === 'espelho' && (
+                  <EspelhoBancario 
+                    extratoRecords={extratoRecords}
+                    ciRecords={ciRecords}
+                    contasRecords={contasRecords}
+                    onSave={saveRecord}
+                    onDelete={deleteRecord}
                   />
                 )}
               </div>
@@ -410,6 +455,7 @@ export default function App() {
         onSave={handleSave}
         aocsRecords={aocsRecords}
         ciRecords={ciRecords}
+        contasRecords={contasRecords}
       />
 
       <ConfirmModal

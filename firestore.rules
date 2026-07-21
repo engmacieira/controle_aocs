@@ -6,7 +6,7 @@ service cloud.firestore {
     }
 
     function isSignedIn() {
-      return request.auth != null && request.auth.token.email_verified == true;
+      return request.auth != null;
     }
 
     // Helper functions for data types
@@ -36,6 +36,18 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow create, update: if isSignedIn() && isValidId(ciId);
       allow delete: if isSignedIn() && isValidId(ciId);
+    }
+    
+    match /extrato/{extratoId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(extratoId);
+      allow delete: if isSignedIn() && isValidId(extratoId);
+    }
+
+    match /contas/{contasId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(contasId);
+      allow delete: if isSignedIn() && isValidId(contasId);
     }
 
     match /dados/{dadosId} {

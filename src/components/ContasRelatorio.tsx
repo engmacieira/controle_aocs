@@ -5,18 +5,20 @@
 
 import React from 'react';
 import { AocsRecord, CiRecord } from '../types';
-import { CreditCard, Wallet, Layers, TrendingUp, CheckCircle, Search } from 'lucide-react';
+import { ExternalLink, CreditCard, Wallet, Layers, TrendingUp, CheckCircle, Search } from 'lucide-react';
 
 import { CSVImporter } from './CSVImporter';
 
 interface ContasRelatorioProps {
   aocsRecords: AocsRecord[];
   ciRecords: CiRecord[];
+  onViewDetails?: (conta: string) => void;
 }
 
 export function ContasRelatorio({
   aocsRecords,
-  ciRecords
+  ciRecords,
+  onViewDetails
 }: ContasRelatorioProps) {
   const [searchTerm, setSearchTerm] = React.useState('');
 
@@ -25,8 +27,9 @@ export function ContasRelatorio({
     const contasMap: { 
       [key: string]: { 
         conta: string; 
-        aocs: number; 
-        ci: number; 
+        comprado: number;
+        faturado: number;
+        naoRecebido: number;
         pago: number; 
       } 
     } = {};
@@ -40,18 +43,24 @@ export function ContasRelatorio({
     aocsRecords.forEach(a => {
       const c = getCleanConta(a.contaBancaria);
       if (!contasMap[c]) {
-        contasMap[c] = { conta: c, aocs: 0, ci: 0, pago: 0 };
+        contasMap[c] = { conta: c, comprado: 0, faturado: 0, naoRecebido: 0, pago: 0 };
       }
-      contasMap[c].aocs += (a.valor || 0);
+      const val = a.valor || 0;
+      contasMap[c].comprado += val;
+      const nf = a.notaFiscal ? String(a.notaFiscal).trim() : '';
+      if (nf !== '' && nf !== '-') {
+        contasMap[c].faturado += val;
+      } else {
+        contasMap[c].naoRecebido += val;
+      }
     });
 
     // Aggregate CIs and Pago
     ciRecords.forEach(ci => {
       const c = getCleanConta(ci.contaBancaria);
       if (!contasMap[c]) {
-        contasMap[c] = { conta: c, aocs: 0, ci: 0, pago: 0 };
+        contasMap[c] = { conta: c, comprado: 0, faturado: 0, naoRecebido: 0, pago: 0 };
       }
-      contasMap[c].ci += (ci.valor || 0);
       contasMap[c].pago += (ci.valorPago || 0);
     });
 
@@ -68,54 +77,68 @@ export function ContasRelatorio({
   // Overall totals
   const totals = React.useMemo(() => {
     return contasResumo.reduce((acc, curr) => {
-      acc.aocs += curr.aocs;
-      acc.ci += curr.ci;
+      acc.comprado += curr.comprado;
+      acc.faturado += curr.faturado;
+      acc.naoRecebido += curr.naoRecebido;
       acc.pago += curr.pago;
       return acc;
-    }, { aocs: 0, ci: 0, pago: 0 });
+    }, { comprado: 0, faturado: 0, naoRecebido: 0, pago: 0 });
   }, [contasResumo]);
 
   return (
     <div id="relatorio-contas-root" className="space-y-6">
       
       {/* Cards Resumo Financeiro */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Total em AOCS (NF)</span>
-            <h3 className="text-2xl font-bold text-emerald-600 mt-1 font-mono">
-              {totals.aocs.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Total Comprado</span>
+            <h3 className="text-xl font-bold text-slate-700 mt-1 font-mono">
+              {totals.comprado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
             </h3>
-            <p className="text-[10px] text-slate-400 mt-1.5 font-mono">Notas fiscais recebidas</p>
+            <p className="text-[10px] text-slate-400 mt-1.5 font-mono">Pedidos Contratados</p>
+          </div>
+          <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-slate-500">
+            <Layers className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-xs flex items-center justify-between">
+          <div>
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">AOCS Faturadas</span>
+            <h3 className="text-xl font-bold text-emerald-600 mt-1 font-mono">
+              {totals.faturado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </h3>
+            <p className="text-[10px] text-slate-400 mt-1.5 font-mono">Com NF recebida</p>
           </div>
           <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-600">
-            <TrendingUp className="w-6 h-6" />
+            <TrendingUp className="w-5 h-5" />
           </div>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Total de CIs Emitidas</span>
-            <h3 className="text-2xl font-bold text-indigo-600 mt-1 font-mono">
-              {totals.ci.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Pendente Entrega</span>
+            <h3 className="text-xl font-bold text-rose-600 mt-1 font-mono">
+              {totals.naoRecebido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
             </h3>
-            <p className="text-[10px] text-slate-400 mt-1.5 font-mono">Comunicações de liquidação</p>
+            <p className="text-[10px] text-slate-400 mt-1.5 font-mono">AOCS sem Nota Fiscal</p>
           </div>
-          <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-600">
-            <Wallet className="w-6 h-6" />
+          <div className="p-3 bg-rose-50 border border-rose-100 rounded-xl text-rose-600">
+            <Search className="w-5 h-5" />
           </div>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-xs flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Total Pago (Extrato)</span>
-            <h3 className="text-2xl font-bold text-emerald-700 mt-1 font-mono">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Total Pago</span>
+            <h3 className="text-xl font-bold text-indigo-700 mt-1 font-mono">
               {totals.pago.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
             </h3>
-            <p className="text-[10px] text-slate-400 mt-1.5 font-mono">Quitação efetivada</p>
+            <p className="text-[10px] text-slate-400 mt-1.5 font-mono">Quitação em CIs</p>
           </div>
-          <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-600">
-            <CheckCircle className="w-6 h-6" />
+          <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-600">
+            <CheckCircle className="w-5 h-5" />
           </div>
         </div>
       </div>
@@ -145,32 +168,37 @@ export function ContasRelatorio({
             <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 font-semibold">
               <tr>
                 <th className="px-6 py-4">Conta Bancária</th>
-                <th className="px-6 py-4 text-right">NF Liquidadas (AOCS)</th>
-                <th className="px-6 py-4 text-right">Comunicações de Liquidação (CI)</th>
-                <th className="px-6 py-4 text-right">Efetivamente Pago</th>
-                <th className="px-6 py-4 text-right">Saldo Pendente de Pagto.</th>
+                <th className="px-6 py-4 text-right">Total Comprado</th>
+                <th className="px-6 py-4 text-right">Faturadas</th>
+                <th className="px-6 py-4 text-right">Pendente Entrega</th>
+                <th className="px-6 py-4 text-right">Total Pago</th>
+                <th className="px-6 py-4 text-right">Saldo a Pagar</th>
                 <th className="px-6 py-4">Progresso de Quitação</th>
+                <th className="px-6 py-4 text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredContas.length > 0 ? (
                 filteredContas.map((rec, index) => {
-                  const percentPaid = rec.ci > 0 ? Math.min(100, Math.round((rec.pago / rec.ci) * 100)) : 0;
-                  const saldoPendente = Math.max(0, rec.ci - rec.pago);
+                  const percentPaid = rec.faturado > 0 ? Math.min(100, Math.round((rec.pago / rec.faturado) * 100)) : 0;
+                  const saldoPendente = Math.max(0, rec.faturado - rec.pago);
                   
                   return (
-                    <tr key={index} className="hover:bg-slate-50/70 transition-colors">
+                    <tr key={index} className="hover:bg-slate-50/70 transition-colors group">
                       <td className="px-6 py-4 font-semibold text-slate-900 max-w-[280px]">
                         <div className="flex items-center gap-2.5">
                           <CreditCard className="w-4 h-4 text-slate-400 flex-shrink-0" />
                           <span title={rec.conta}>{rec.conta}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right font-semibold font-mono text-emerald-600">
-                        {rec.aocs.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                      <td className="px-6 py-4 text-right font-semibold font-mono text-slate-600">
+                        {rec.comprado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                       </td>
-                      <td className="px-6 py-4 text-right font-semibold font-mono text-indigo-600">
-                        {rec.ci.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                      <td className="px-6 py-4 text-right font-semibold font-mono text-emerald-600">
+                        {rec.faturado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                      </td>
+                      <td className="px-6 py-4 text-right font-semibold font-mono text-rose-600">
+                        {rec.naoRecebido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                       </td>
                       <td className="px-6 py-4 text-right font-bold font-mono text-emerald-700">
                         {rec.pago.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
@@ -189,12 +217,21 @@ export function ContasRelatorio({
                           <span className="font-mono text-xs font-bold text-slate-700">{percentPaid}%</span>
                         </div>
                       </td>
+                      <td className="px-6 py-4 text-right">
+                        <button
+                          onClick={() => onViewDetails && onViewDetails(rec.conta)}
+                          className="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                          title="Ver Detalhes"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </button>
+                      </td>
                     </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400 text-sm">
+                  <td colSpan={7} className="px-6 py-12 text-center text-slate-400 text-sm">
                     Nenhuma conta bancária encontrada.
                   </td>
                 </tr>

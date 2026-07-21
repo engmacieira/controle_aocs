@@ -43,6 +43,21 @@ export interface CiRecord {
   valorPago: number;
   chaveAcessoNF: string;
   conferenciaExtrato: string;
+  status?: 'Pendente' | 'Pago' | 'Atrasado';
+}
+
+export interface ExtratoRecord {
+  id: string;
+  data: string;
+  refCi: string;
+  descricao: string;
+  dotacao: string;
+  tipo: 'entrada' | 'saida' | 'transferencia';
+  valor: number;
+  conciliado: boolean;
+  contaBancaria: string;
+  subConta?: 'corrente' | 'investimento';
+  subTipo?: string; // 'avulso', 'ci', 'rendimento', 'repasse'
 }
 
 export interface ContaResumo {
@@ -52,6 +67,9 @@ export interface ContaResumo {
   totalPago: number;
 }
 
+export interface ContaBancariaRecord {
+  id: string;
+  nome: string;
+}
+
 export type SortOrder = 'asc' | 'desc';
-
-
