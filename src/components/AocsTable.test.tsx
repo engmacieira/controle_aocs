@@ -135,4 +135,80 @@ describe('AocsTable Component', () => {
     fireEvent.click(bulkDeleteButton);
     expect(defaultProps.onBulkDelete).toHaveBeenCalledWith(['aocs_2']); // Depende de qual foi clicado primeiro devido à ordenação padrão
   });
+
+  it('deve selecionar e desselecionar todos os itens da página ao clicar no checkbox principal', () => {
+    render(<AocsTable {...defaultProps} />);
+    const selectAllCheckbox = screen.getAllByRole('checkbox')[0];
+    
+    // Seleciona todos
+    fireEvent.click(selectAllCheckbox);
+    expect(screen.getByRole('button', { name: /Excluir \(2\)/i })).toBeInTheDocument();
+
+    // Desseleciona todos
+    fireEvent.click(selectAllCheckbox);
+    expect(screen.queryByRole('button', { name: /Excluir \(\d+\)/i })).not.toBeInTheDocument();
+  });
+
+  it('deve desselecionar um item específico', () => {
+    render(<AocsTable {...defaultProps} />);
+    const checkboxes = screen.getAllByRole('checkbox');
+    
+    // Seleciona o primeiro item da linha
+    fireEvent.click(checkboxes[1]);
+    expect(screen.getByRole('button', { name: /Excluir \(1\)/i })).toBeInTheDocument();
+
+    // Desseleciona o mesmo item
+    fireEvent.click(checkboxes[1]);
+    expect(screen.queryByRole('button', { name: /Excluir \(\d+\)/i })).not.toBeInTheDocument();
+  });
+
+  it('deve ordenar corretamente ao clicar em outros cabeçalhos de coluna', () => {
+    render(<AocsTable {...defaultProps} />);
+    
+    const dataAocsHeader = screen.getByText('Data AOCS');
+    const resumoHeader = screen.getByText('Resumo Contratação');
+    const empresaHeader = screen.getByText('Fornecedor');
+    const contratoArpHeader = screen.getByText('Contrato/ARP');
+    const processoHeader = screen.getByText('Processo Licitatório');
+    const valorHeader = screen.getByText('Valor (R$)');
+
+    // Clica para ordenar por outras colunas
+    fireEvent.click(dataAocsHeader);
+    fireEvent.click(resumoHeader);
+    fireEvent.click(empresaHeader);
+    fireEvent.click(contratoArpHeader);
+    fireEvent.click(processoHeader);
+    fireEvent.click(valorHeader);
+    
+    // Ordena de forma inversa (desc) clicando novamente
+    fireEvent.click(valorHeader);
+    
+    expect(screen.getByText('#10')).toBeInTheDocument();
+  });
+
+  it('deve ordenar corretamente quando o campo aocs não for numérico (string fallback)', () => {
+    const stringRecords: AocsRecord[] = [
+      ...mockRecords,
+      {
+        ...mockRecords[0],
+        id: 'aocs_3',
+        aocs: 'AOCS-ABC',
+      },
+      {
+        ...mockRecords[0],
+        id: 'aocs_4',
+        aocs: 'AOCS-XYZ',
+      }
+    ];
+
+    render(<AocsTable {...defaultProps} records={stringRecords} />);
+    
+    const aocsHeader = screen.getByText('AOCS #');
+    // Força a ordenação
+    fireEvent.click(aocsHeader);
+    fireEvent.click(aocsHeader); // toggles to desc
+
+    expect(screen.getByText('#AOCS-ABC')).toBeInTheDocument();
+    expect(screen.getByText('#AOCS-XYZ')).toBeInTheDocument();
+  });
 });

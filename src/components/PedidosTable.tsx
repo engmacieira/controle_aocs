@@ -6,6 +6,7 @@
 import React from 'react';
 import { AocsRecord, SortOrder } from '../types';
 import { ArrowUpDown, Edit3, Search, Plus, Sparkles, ShoppingCart, Landmark } from 'lucide-react';
+import { Pagination } from './Pagination';
 
 interface PedidosTableProps {
   records: AocsRecord[];
@@ -302,33 +303,14 @@ export function PedidosTable({ records, onEdit, onAdd }: PedidosTableProps) {
       </div>
 
       {/* Pagination Footer */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-slate-100 pt-4 text-xs text-slate-500 font-medium font-mono">
-          <span>
-            Mostrando {Math.min(filteredRecords.length, (currentPage - 1) * pageSize + 1)} a{' '}
-            {Math.min(filteredRecords.length, currentPage * pageSize)} de {filteredRecords.length} lançamentos
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1.5 rounded-lg border border-slate-100 hover:bg-slate-50 disabled:opacity-40 transition-colors"
-            >
-              Anterior
-            </button>
-            <span className="px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100 text-slate-700">
-              {currentPage} de {totalPages}
-            </span>
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1.5 rounded-lg border border-slate-100 hover:bg-slate-50 disabled:opacity-40 transition-colors"
-            >
-              Próximo
-            </button>
-          </div>
-        </div>
-      )}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filteredRecords.length}
+        pageSize={pageSize}
+        onPageChange={setCurrentPage}
+        itemName="pedidos"
+      />
     </div>
   );
 }

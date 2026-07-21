@@ -37,7 +37,8 @@ describe('FormModal Component', () => {
     itemToEdit: null,
     onSave: vi.fn(),
     aocsRecords: mockAocsRecords,
-    ciRecords: mockCiRecords
+    ciRecords: mockCiRecords,
+    contasRecords: []
   };
 
   it('não deve renderizar nada se isOpen for false', () => {
@@ -109,7 +110,8 @@ describe('FormModal Component', () => {
   it('deve renderizar a aba Pedidos de Compra e carregar os dados ao vincular AOCS', () => {
     render(<FormModal {...defaultProps} activeTab="pedidos" />);
     
-    const selectAocs = screen.getByRole('combobox');
+    const selects = screen.getAllByRole('combobox');
+    const selectAocs = selects[0];
     expect(selectAocs).toBeInTheDocument();
     
     // Selecionar a AOCS_1 para vincular
@@ -119,5 +121,96 @@ describe('FormModal Component', () => {
     // O campo "Ordem de Compra" tem o placeholder "Ex: 38"
     const ordemCompraInput = screen.getByPlaceholderText('Ex: 38') as HTMLInputElement;
     expect(ordemCompraInput.value).toBe('38');
+
+    // Mudar campos em pedidos
+    fireEvent.change(ordemCompraInput, { target: { value: '39' } });
+    expect(ordemCompraInput.value).toBe('39');
+    
+    const empenhoInput = screen.getByPlaceholderText('Ex: 182');
+    fireEvent.change(empenhoInput, { target: { value: '183' } });
+    
+    const dataEnvioInput = screen.getByPlaceholderText('Ex: 27-jan.');
+    fireEvent.change(dataEnvioInput, { target: { value: '28-jan.' } });
+    
+    const dotacaoInput = screen.getByPlaceholderText('Ex: Dotação 234');
+    fireEvent.change(dotacaoInput, { target: { value: 'Dotação 235' } });
+    
+    const fonteInput = screen.getByPlaceholderText('Ex: FR 1.660.000');
+    fireEvent.change(fonteInput, { target: { value: 'FR 2.000.000' } });
+
+    fireEvent.submit(screen.getByRole('button', { name: /Salvar Registro/i }));
+    expect(defaultProps.onSave).toHaveBeenCalledWith(expect.objectContaining({ ordemCompra: '39', empenho: '183' }));
+  });
+
+  it('deve carregar dados de um item para edição (itemToEdit)', () => {
+    render(<FormModal {...defaultProps} itemToEdit={mockAocsRecords[0]} />);
+    
+    expect(screen.getByText('Editar Registro')).toBeInTheDocument();
+    const aocsInput = screen.getByPlaceholderText('Ex: 1') as HTMLInputElement;
+    expect(aocsInput.value).toBe('10');
+  });
+
+  it('deve renderizar a aba Faturamento e carregar os dados ao vincular AOCS', () => {
+    render(<FormModal {...defaultProps} activeTab="faturamento" />);
+    
+    expect(screen.getByText('Faturamento AOCS (Vincular NF/CI)')).toBeInTheDocument();
+
+    const selects = screen.getAllByRole('combobox');
+    const selectAocs = selects[0];
+    
+    fireEvent.change(selectAocs, { target: { value: 'aocs_1' } });
+
+    const nfInput = screen.getByPlaceholderText('Ex: 1377') as HTMLInputElement;
+    expect(nfInput.value).toBe('1377');
+
+    fireEvent.change(nfInput, { target: { value: '1378' } });
+    
+    const dataNfInput = screen.getByPlaceholderText('Ex: 28/01');
+    fireEvent.change(dataNfInput, { target: { value: '29/01' } });
+    
+    const ciInput = screen.getByPlaceholderText('Ex: 20');
+    fireEvent.change(ciInput, { target: { value: '21' } });
+    
+    fireEvent.submit(screen.getByRole('button', { name: /Salvar Registro/i }));
+    expect(defaultProps.onSave).toHaveBeenCalledWith(expect.objectContaining({ notaFiscal: '1378', numeroCI: '21' }));
+  });
+
+  it('deve alterar campos adicionais na aba AOCS', () => {
+    render(<FormModal {...defaultProps} activeTab="aocs" />);
+    
+    const contratoInput = screen.getByPlaceholderText('Ex: ARP n° 022/2025');
+    fireEvent.change(contratoInput, { target: { value: 'ARP 001' } });
+    
+    const processoInput = screen.getByPlaceholderText('Ex: Pregão Eletrônico n° 015/2025');
+    fireEvent.change(processoInput, { target: { value: 'Pregão 002' } });
+
+    fireEvent.submit(screen.getByRole('button', { name: /Salvar Registro/i }));
+    expect(defaultProps.onSave).toHaveBeenCalledWith(expect.objectContaining({ contratoArp: 'ARP 001', processo: 'Pregão 002' }));
+  });
+
+  it('deve alterar campos adicionais na aba CI', () => {
+    render(<FormModal {...defaultProps} activeTab="ci" />);
+    
+    const ciInput = screen.getByPlaceholderText('Ex: 20');
+    fireEvent.change(ciInput, { target: { value: '21' } });
+
+    const dataCiInput = screen.getByPlaceholderText('Ex: 28/01');
+    fireEvent.change(dataCiInput, { target: { value: '29/01' } });
+
+    const selects = screen.getAllByRole('combobox');
+    const contaBancariaSelect = selects[1];
+    fireEvent.change(contaBancariaSelect, { target: { value: 'Conta X' } });
+    
+    const dataPagamentoInput = screen.getByPlaceholderText('Ex: 02/02');
+    fireEvent.change(dataPagamentoInput, { target: { value: '03/02' } });
+    
+    const chaveAcessoInput = screen.getByPlaceholderText('Chave de acesso da NF');
+    fireEvent.change(chaveAcessoInput, { target: { value: '123456' } });
+    
+    const statusSelects = screen.getAllByDisplayValue('Pendente');
+    fireEvent.change(statusSelects[0], { target: { value: 'Pago' } });
+
+    fireEvent.submit(screen.getByRole('button', { name: /Salvar Registro/i }));
+    expect(defaultProps.onSave).toHaveBeenCalledWith(expect.objectContaining({ ci: '21', status: 'Pago', chaveAcessoNF: '123456' }));
   });
 });

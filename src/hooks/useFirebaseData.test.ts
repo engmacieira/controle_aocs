@@ -143,4 +143,126 @@ describe('useFirebaseData Hook', () => {
       expect.objectContaining({ id: 'aocs_123', collection: 'aocs' })
     );
   });
+
+  it('deve deletar múltiplos registros do Firestore se o usuário estiver logado', async () => {
+    const fakeUser = { uid: 'user_123', email: 'test@example.com' };
+    mockOnAuthStateChanged.mockImplementationOnce((callback) => {
+      callback(fakeUser);
+    });
+
+    const { result } = renderHook(() => useFirebaseData());
+
+    await act(async () => {
+      await result.current.deleteRecords('aocs', ['id_1', 'id_2']);
+    });
+
+    expect(mockWriteBatch).toHaveBeenCalled();
+  });
+
+  it('deve tratar erro ao carregar AOCS (onSnapshot error)', () => {
+    const fakeUser = { uid: 'user_123', email: 'test@example.com' };
+    mockOnAuthStateChanged.mockImplementationOnce((callback) => {
+      callback(fakeUser);
+    });
+
+    let aocsErrorCallback: any = null;
+    mockOnSnapshot.mockImplementation((ref: any, callback: any, errorCallback: any) => {
+      if (ref.name === 'aocs') {
+        aocsErrorCallback = errorCallback;
+      }
+      return vi.fn();
+    });
+
+    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const consoleErrorMock = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    renderHook(() => useFirebaseData());
+
+    act(() => {
+      if (aocsErrorCallback) {
+        aocsErrorCallback(new Error('Permission denied'));
+      }
+    });
+
+    expect(consoleErrorMock).toHaveBeenCalled();
+    expect(alertMock).toHaveBeenCalledWith('Error loading AOCS: Permission denied');
+
+    alertMock.mockRestore();
+    consoleErrorMock.mockRestore();
+  });
+
+  it('deve tratar erro de login', async () => {
+    mockSignInWithPopup.mockRejectedValueOnce(new Error('Login failed'));
+    const consoleErrorMock = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const { result } = renderHook(() => useFirebaseData());
+
+    await act(async () => {
+      await result.current.signIn();
+    });
+
+    expect(consoleErrorMock).toHaveBeenCalled();
+    consoleErrorMock.mockRestore();
+  });
+
+  it('deve tratar erro ao salvar registro', async () => {
+    const fakeUser = { uid: 'user_123', email: 'test@example.com' };
+    mockOnAuthStateChanged.mockImplementationOnce((callback) => {
+      callback(fakeUser);
+    });
+
+    mockSetDoc.mockRejectedValueOnce(new Error('Save failed'));
+    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+    const { result } = renderHook(() => useFirebaseData());
+
+    await act(async () => {
+      await result.current.saveRecord('aocs', { id: '1' });
+    });
+
+    expect(alertMock).toHaveBeenCalledWith('Error saving: Save failed');
+    alertMock.mockRestore();
+  });
+
+  it('deve tratar erro ao deletar registro', async () => {
+    const fakeUser = { uid: 'user_123', email: 'test@example.com' };
+    mockOnAuthStateChanged.mockImplementationOnce((callback) => {
+      callback(fakeUser);
+    });
+
+    mockDeleteDoc.mockRejectedValueOnce(new Error('Delete failed'));
+    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+    const { result } = renderHook(() => useFirebaseData());
+
+    await act(async () => {
+      await result.current.deleteRecord('aocs', '1');
+    });
+
+    expect(alertMock).toHaveBeenCalledWith('Error deleting: Delete failed');
+    alertMock.mockRestore();
+  });
+
+  it('deve tratar erro ao deletar multiplos registros', async () => {
+    const fakeUser = { uid: 'user_123', email: 'test@example.com' };
+    mockOnAuthStateChanged.mockImplementationOnce((callback) => {
+      callback(fakeUser);
+    });
+
+    mockWriteBatch.mockImplementationOnce(() => ({
+      delete: vi.fn(),
+      commit: vi.fn().mockRejectedValueOnce(new Error('Batch delete failed'))
+    }));
+    
+    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+    const { result } = renderHook(() => useFirebaseData());
+
+    await act(async () => {
+      await result.current.deleteRecords('aocs', ['1', '2']);
+    });
+
+    expect(alertMock).toHaveBeenCalledWith('Error deleting records: Batch delete failed');
+    alertMock.mockRestore();
+  });
 });

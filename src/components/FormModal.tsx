@@ -7,18 +7,20 @@ import React from 'react';
 import { X, Sparkles, AlertCircle } from 'lucide-react';
 import { 
   AocsRecord, 
-  CiRecord 
+  CiRecord,
+  ContaBancariaRecord
 } from '../types';
 
 interface FormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  activeTab: 'aocs' | 'pedidos' | 'faturamento' | 'ci' | 'relatorio';
+  activeTab: 'aocs' | 'pedidos' | 'faturamento' | 'ci' | 'relatorio' | 'espelho';
   itemToEdit: any | null; // Can be any of the records
   onSave: (item: any) => void;
   
   aocsRecords: AocsRecord[];
   ciRecords: CiRecord[];
+  contasRecords: ContaBancariaRecord[];
 }
 
 export function FormModal({
@@ -28,7 +30,8 @@ export function FormModal({
   itemToEdit,
   onSave,
   aocsRecords,
-  ciRecords
+  ciRecords,
+  contasRecords
 }: FormModalProps) {
   // Form values state
   const [formData, setFormData] = React.useState<any>({});
@@ -346,13 +349,16 @@ export function FormModal({
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Conta Bancária</label>
-                <input
-                  type="text"
-                  placeholder="Ex: Recurso Próprio"
+                <select
                   value={formData.contaBancaria || ''}
                   onChange={(e) => handleFieldChange('contaBancaria', e.target.value)}
                   className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
-                />
+                >
+                  <option value="">Selecione uma conta...</option>
+                  {contasRecords.map(conta => (
+                    <option key={conta.id} value={conta.nome}>{conta.nome}</option>
+                  ))}
+                </select>
               </div>
             </div>
           )}
@@ -546,13 +552,16 @@ export function FormModal({
               </div>
               <div className="col-span-2">
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Conta Bancária</label>
-                <input
-                  type="text"
-                  placeholder="Ex: Recurso Próprio"
+                <select
                   value={formData.contaBancaria || ''}
                   onChange={(e) => handleFieldChange('contaBancaria', e.target.value)}
                   className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-slate-50 text-slate-500"
-                />
+                >
+                  <option value="">Selecione uma conta...</option>
+                  {contasRecords.map(conta => (
+                    <option key={conta.id} value={conta.nome}>{conta.nome}</option>
+                  ))}
+                </select>
               </div>
 
               {/* Data Pagamento, Valor Pago, Chave de Acesso, Conferência Extrato */}
@@ -582,6 +591,18 @@ export function FormModal({
                   onChange={(e) => handleFieldChange('valorPago', parseFloat(e.target.value) || 0)}
                   className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm font-bold text-emerald-700"
                 />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Status do Pagamento</label>
+                <select
+                  value={formData.status || 'Pendente'}
+                  onChange={(e) => handleFieldChange('status', e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-white"
+                >
+                  <option value="Pendente">Pendente</option>
+                  <option value="Pago">Pago</option>
+                  <option value="Atrasado">Atrasado</option>
+                </select>
               </div>
               <div className="col-span-2">
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Chave de Acesso</label>

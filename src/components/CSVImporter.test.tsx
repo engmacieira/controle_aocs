@@ -86,4 +86,102 @@ describe('CSVImporter Component', () => {
     expect(screen.getByText('Empresa ABC')).toBeInTheDocument();
     expect(screen.getByText('1200.5')).toBeInTheDocument(); // Após coerção de string do valor R$ 1.200,50 para número
   });
+
+  it('deve permitir cancelar a importação após gerar a pré-visualização', async () => {
+    render(<CSVImporter />);
+
+    const file = new File(['test content'], 'test.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const input = screen.getAllByLabelText('Selecionar Arquivo')[0];
+
+    fireEvent.change(input, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Cancelar/i })).toBeInTheDocument();
+    });
+
+    const cancelBtn = screen.getByRole('button', { name: /Cancelar/i });
+    fireEvent.click(cancelBtn);
+
+    expect(screen.queryByRole('button', { name: /Cancelar/i })).not.toBeInTheDocument();
+  });
+
+  it('deve confirmar a importação e salvar no firebase', async () => {
+    render(<CSVImporter />);
+
+    const file = new File(['test content'], 'test.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const input = screen.getAllByLabelText('Selecionar Arquivo')[0];
+
+    fireEvent.change(input, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Cancelar/i })).toBeInTheDocument();
+    });
+
+    const confirmBtn = screen.getByRole('button', { name: /Confirmar Importação/i });
+    fireEvent.click(confirmBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/importados com sucesso para aocs/i)).toBeInTheDocument();
+    });
+  });
+
+  it('deve processar e renderizar corretamente a importação de CI', async () => {
+    // Override XLSX mock for this test
+    vi.spyOn(XLSX.utils, 'sheet_to_json').mockReturnValueOnce([
+      { 'CI': 'CI-123', 'Data CI': '10/10/2026', 'Valor Pago': 'R$ 5.000,00', 'AOCS': null }
+    ]);
+
+    render(<CSVImporter />);
+
+    const file = new File(['test'], 'ci.xlsx', { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const input = screen.getAllByLabelText('Selecionar Arquivo')[1]; // CI is the second input
+
+    fireEvent.change(input, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(screen.getByText(/Pré-visualização: ci/i)).toBeInTheDocument();
+    });
+
+    // It should have coerced the 'AOCS' null into '-' and 'Valor Pago' to 5000
+    expect(screen.getByText('CI-123')).toBeInTheDocument();
+    expect(screen.getByText('5000')).toBeInTheDocument();
+  });
+
+  it('deve exibir mensagem de erro se FileReader disparar onerror', async () => {
+    const readAsBinaryStringMock = vi.spyOn(FileReader.prototype, 'readAsBinaryString').mockImplementation(function(this: FileReader) {
+      if (this.onerror) {
+        this.onerror(new ProgressEvent('error') as any);
+      }
+    });
+
+    render(<CSVImporter />);
+
+    const file = new File(['test'], 'error.csv', { type: 'text/csv' });
+    const input = screen.getAllByLabelText('Selecionar Arquivo')[0];
+
+    fireEvent.change(input, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(screen.getByText(/Erro ao tentar ler o arquivo/i)).toBeInTheDocument();
+    });
+
+    readAsBinaryStringMock.mockRestore();
+  });
+
+  it('deve exibir mensagem de erro se a leitura falhar (exception)', async () => {
+    vi.spyOn(XLSX, 'read').mockImplementationOnce(() => {
+      throw new Error('Fake read error');
+    });
+
+    render(<CSVImporter />);
+
+    const file = new File(['test'], 'error.csv', { type: 'text/csv' });
+    const input = screen.getAllByLabelText('Selecionar Arquivo')[0];
+
+    fireEvent.change(input, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(screen.getByText(/Erro ao ler arquivo: Fake read error/i)).toBeInTheDocument();
+    });
+  });
 });
