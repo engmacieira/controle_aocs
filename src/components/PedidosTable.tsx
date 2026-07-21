@@ -282,7 +282,7 @@ export function PedidosTable({ records, onEdit, onAdd }: PedidosTableProps) {
                       <button
                         onClick={() => onEdit(rec)}
                         className="inline-flex items-center gap-1 px-2.5 py-1.5 hover:bg-slate-100 text-indigo-600 rounded-lg transition-colors font-semibold text-xs"
-                        title="Vincular / Editar Pedido"
+                        title="Vincular / Editar Pedido" aria-label="Vincular ou Editar Pedido"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                         <span>Preencher</span>

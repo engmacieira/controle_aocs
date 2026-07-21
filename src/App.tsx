@@ -52,6 +52,18 @@ export default function App() {
     deleteRecords
   } = useFirebaseData();
 
+  // --- Toast Notification State ---
+  const [toasts, setToasts] = React.useState<{ id: string; message: string; type: 'success' | 'error' | 'info' }[]>([]);
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
+  };
+
+
   // --- Active Tab State ---
   const [activeTab, setActiveTab] = React.useState<'relatorio' | 'aocs' | 'pedidos' | 'faturamento' | 'ci' | 'espelho' | 'conta_detalhes'>('relatorio');
   const [selectedConta, setSelectedConta] = React.useState<string | null>(null);
@@ -123,9 +135,10 @@ export default function App() {
   };
 
   // --- CRUD Save Handler per Tab ---
-  const handleSave = (item: any) => {
+  const handleSave = async (item: any) => {
     const colName = activeTab === 'ci' ? 'ci' : 'aocs';
-    saveRecord(colName, item);
+    await saveRecord(colName, item);
+    showToast('Registro salvo com sucesso!', 'success');
     setIsModalOpen(false);
     setItemToEdit(null);
   };
@@ -136,9 +149,10 @@ export default function App() {
       isOpen: true,
       title: 'Excluir Registro',
       message: `Tem certeza de que deseja excluir o registro "${refName}"? Esta ação não pode ser desfeita.`,
-      onConfirm: () => {
+      onConfirm: async () => {
         const colName = activeTab === 'ci' ? 'ci' : 'aocs';
-        deleteRecord(colName, id);
+        await deleteRecord(colName, id);
+        showToast(`Registro "${refName}" excluído com sucesso!`, 'success');
       }
     });
   };
@@ -148,9 +162,10 @@ export default function App() {
       isOpen: true,
       title: 'Excluir Registros',
       message: `Tem certeza de que deseja excluir os ${ids.length} registros selecionados? Esta ação não pode ser desfeita.`,
-      onConfirm: () => {
+      onConfirm: async () => {
         const colName = activeTab === 'ci' ? 'ci' : 'aocs';
-        deleteRecords(colName, ids);
+        await deleteRecords(colName, ids);
+        showToast(`${ids.length} registros excluídos com sucesso!`, 'success');
       }
     });
   };
@@ -434,6 +449,7 @@ export default function App() {
                     contasRecords={contasRecords}
                     onSave={saveRecord}
                     onDelete={deleteRecord}
+                    showToast={showToast}
                   />
                 )}
               </div>
@@ -465,6 +481,40 @@ export default function App() {
         onConfirm={confirmConfig.onConfirm}
         onCancel={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
       />
+
+      {/* Toast Notification Container */}
+      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className={`pointer-events-auto p-4 rounded-xl shadow-lg border flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-300 min-w-72 max-w-sm ${
+              toast.type === 'success'
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-150'
+                : toast.type === 'error'
+                ? 'bg-rose-50 text-rose-800 border-rose-150'
+                : 'bg-indigo-50 text-indigo-800 border-indigo-150'
+            }`}
+          >
+            {toast.type === 'success' && (
+              <span className="text-emerald-500 font-bold" aria-hidden="true">✓</span>
+            )}
+            {toast.type === 'error' && (
+              <span className="text-rose-500 font-bold" aria-hidden="true">✗</span>
+            )}
+            {toast.type === 'info' && (
+              <span className="text-indigo-500 font-bold" aria-hidden="true">ℹ</span>
+            )}
+            <p className="text-xs font-semibold leading-relaxed">{toast.message}</p>
+            <button
+              onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
+              className="ml-auto text-slate-400 hover:text-slate-600 transition-colors focus-visible:outline-hidden text-base leading-none font-bold"
+              aria-label="Fechar notificação"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
 
     </div>
   );

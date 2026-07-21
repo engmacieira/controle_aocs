@@ -290,7 +290,7 @@ export function FaturamentoTable({ records, onEdit, onAdd }: FaturamentoTablePro
                       <button
                         onClick={() => onEdit(rec)}
                         className="inline-flex items-center gap-1 px-2.5 py-1.5 hover:bg-slate-100 text-indigo-600 rounded-lg transition-colors font-semibold text-xs"
-                        title="Vincular / Editar Faturamento"
+                        title="Vincular / Editar Faturamento" aria-label="Vincular ou Editar Faturamento"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                         <span>Preencher</span>

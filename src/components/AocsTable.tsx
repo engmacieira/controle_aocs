@@ -264,14 +264,14 @@ export function AocsTable({ records, onEdit, onDelete, onBulkDelete, onAdd }: Ao
                       <button
                         onClick={() => onEdit(rec)}
                         className="p-1.5 hover:bg-slate-100 text-slate-600 hover:text-indigo-600 rounded-lg transition-colors"
-                        title="Editar AOCS"
+                        title="Editar AOCS" aria-label="Editar AOCS"
                       >
                         <Edit3 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => onDelete(rec.id, rec.aocs)}
                         className="p-1.5 hover:bg-slate-100 text-slate-600 hover:text-rose-600 rounded-lg transition-colors"
-                        title="Excluir AOCS"
+                        title="Excluir AOCS" aria-label="Excluir AOCS"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
