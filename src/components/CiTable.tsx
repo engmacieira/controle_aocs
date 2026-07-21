@@ -322,14 +322,14 @@ export function CiTable({ records, contasRecords, onEdit, onDelete, onBulkDelete
                       <button
                         onClick={() => onEdit(rec)}
                         className="p-1.5 hover:bg-slate-100 text-slate-600 hover:text-indigo-600 rounded-lg transition-colors"
-                        title="Editar CI"
+                        title="Editar CI" aria-label="Editar CI"
                       >
                         <Edit3 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => onDelete(rec.id, rec.ci)}
                         className="p-1.5 hover:bg-slate-100 text-slate-600 hover:text-rose-600 rounded-lg transition-colors"
-                        title="Excluir CI"
+                        title="Excluir CI" aria-label="Excluir CI"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

@@ -101,7 +101,7 @@ export function ExtratoModal({ isOpen, onClose, onSave, itemToEdit, ciRecords, c
           <h2 className="text-xl font-bold text-slate-900">
             {itemToEdit ? 'Editar Lançamento' : 'Novo Lançamento'}
           </h2>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-100 rounded-lg transition-colors">
+          <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-100 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 outline-hidden" aria-label="Fechar modal de extrato">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -208,10 +208,10 @@ export function ExtratoModal({ isOpen, onClose, onSave, itemToEdit, ciRecords, c
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-50 rounded-lg transition-colors">
+            <button type="button" onClick={onClose} className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-50 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-slate-400 outline-hidden">
               Cancelar
             </button>
-            <button type="submit" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors shadow-sm">
+            <button type="submit" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 outline-hidden">
               Salvar Lançamento
             </button>
           </div>

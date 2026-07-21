@@ -60,16 +60,16 @@ export function Pagination({
         <button
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
-          className="p-1.5 rounded-lg border border-slate-100 hover:bg-slate-50 disabled:opacity-40 transition-colors"
-          title="Primeira Página"
+          className="p-1.5 rounded-lg border border-slate-100 hover:bg-slate-50 disabled:opacity-40 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-hidden outline-hidden"
+          title="Primeira Página" aria-label="Ir para a primeira página"
         >
           <ChevronsLeft className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
-          className="p-1.5 rounded-lg border border-slate-100 hover:bg-slate-50 disabled:opacity-40 transition-colors"
-          title="Página Anterior"
+          className="p-1.5 rounded-lg border border-slate-100 hover:bg-slate-50 disabled:opacity-40 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-hidden outline-hidden"
+          title="Página Anterior" aria-label="Ir para a página anterior"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -82,7 +82,7 @@ export function Pagination({
             onChange={handleInputChange}
             onKeyDown={handleInputKeyDown}
             onBlur={handleInputBlur}
-            className="w-12 h-8 text-center rounded-lg border border-slate-200 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-slate-700 bg-white"
+            aria-label="Número da página atual" className="w-12 h-8 text-center rounded-lg border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus:border-indigo-500 transition-all text-slate-700 bg-white outline-hidden"
           />
           <span>de {totalPages}</span>
         </div>
@@ -90,16 +90,16 @@ export function Pagination({
         <button
           onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
           disabled={currentPage === totalPages}
-          className="p-1.5 rounded-lg border border-slate-100 hover:bg-slate-50 disabled:opacity-40 transition-colors"
-          title="Próxima Página"
+          className="p-1.5 rounded-lg border border-slate-100 hover:bg-slate-50 disabled:opacity-40 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-hidden outline-hidden"
+          title="Próxima Página" aria-label="Ir para a próxima página"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages}
-          className="p-1.5 rounded-lg border border-slate-100 hover:bg-slate-50 disabled:opacity-40 transition-colors"
-          title="Última Página"
+          className="p-1.5 rounded-lg border border-slate-100 hover:bg-slate-50 disabled:opacity-40 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-hidden outline-hidden"
+          title="Última Página" aria-label="Ir para a última página"
         >
           <ChevronsRight className="w-4 h-4" />
         </button>

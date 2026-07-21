@@ -221,7 +221,7 @@ export function ContasRelatorio({
                         <button
                           onClick={() => onViewDetails && onViewDetails(rec.conta)}
                           className="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-                          title="Ver Detalhes"
+                          title="Ver Detalhes" aria-label="Ver detalhes da conta"
                         >
                           <ExternalLink className="w-4 h-4" />
                         </button>

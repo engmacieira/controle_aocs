@@ -9,9 +9,10 @@ interface EspelhoBancarioProps {
   contasRecords: ContaBancariaRecord[];
   onSave: (collectionName: string, item: any) => void;
   onDelete: (collectionName: string, id: string) => void;
+  showToast?: (message: string, type: 'success' | 'error' | 'info') => void;
 }
 
-export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSave, onDelete }: EspelhoBancarioProps) {
+export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSave, onDelete, showToast }: EspelhoBancarioProps) {
   const [contaFiltro, setContaFiltro] = useState(contasRecords.length > 0 ? contasRecords[0].nome : '');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<ExtratoRecord | null>(null);
@@ -30,6 +31,12 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
     const record = extratoRecords.find(r => r.id === id);
     if (record) {
       onSave('extrato', { ...record, conciliado: !current });
+      if (showToast) {
+        showToast(
+          !current ? 'Lançamento conciliado com sucesso!' : 'Conciliação removida com sucesso!',
+          'success'
+        );
+      }
     }
   };
 
@@ -41,6 +48,9 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
   const handleDelete = (id: string) => {
     if (confirm('Tem certeza de que deseja excluir este lançamento?')) {
       onDelete('extrato', id);
+      if (showToast) {
+        showToast('Lançamento excluído com sucesso!', 'success');
+      }
     }
   };
 
@@ -52,6 +62,9 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
 
   const handleSaveModal = (item: any) => {
     onSave('extrato', item);
+    if (showToast) {
+      showToast('Lançamento de extrato salvo com sucesso!', 'success');
+    }
     setIsModalOpen(false);
   };
 
@@ -86,7 +99,7 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
               <select 
                 value={contaFiltro}
                 onChange={(e) => setContaFiltro(e.target.value)}
-                className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-slate-700 bg-slate-50"
+                className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 outline-hidden text-slate-700 bg-slate-50"
               >
                 {contasRecords.map(conta => (
                   <option key={conta.id} value={conta.nome}>{conta.nome}</option>
@@ -106,7 +119,7 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
           </div>
           <div className="flex flex-col">
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Mês / Ano</label>
-            <select className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-slate-700 bg-slate-50">
+            <select className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 outline-hidden text-slate-700 bg-slate-50">
               <option>Janeiro 2026</option>
               <option>Fevereiro 2026</option>
               <option>Março 2026</option>
@@ -196,7 +209,7 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
                 </tr>
               ) : (
                 recordsToShow.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={item.id} className={`transition-all duration-300 ${item.conciliado ? 'bg-emerald-50/20 hover:bg-emerald-50/40' : 'hover:bg-slate-50'}`}>
                     <td className="px-4 py-3 text-sm text-slate-600 whitespace-nowrap">
                       {new Date(item.data + 'T00:00:00').toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                     </td>
@@ -225,17 +238,17 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
                     <td className="px-4 py-3 text-center">
                       <input 
                         type="checkbox" 
-                        className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500 cursor-pointer"
+                        className="w-4 h-4 text-indigo-600 border-slate-300 rounded focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer outline-hidden"
                         checked={!!item.conciliado}
                         onChange={() => toggleConciliado(item.id, !!item.conciliado)}
                       />
                     </td>
                     <td className="px-4 py-3 text-center">
                       <div className="flex items-center justify-center gap-2">
-                        <button onClick={() => handleEdit(item)} className="text-slate-400 hover:text-indigo-600 transition-colors p-1 rounded-md hover:bg-indigo-50" title="Editar">
+                        <button onClick={() => handleEdit(item)} className="text-slate-400 hover:text-indigo-600 transition-colors p-1 rounded-md hover:bg-indigo-50 focus-visible:ring-2 focus-visible:ring-indigo-500 outline-hidden" title="Editar" aria-label="Editar lançamento">
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button onClick={() => handleDelete(item.id)} className="text-slate-400 hover:text-red-600 transition-colors p-1 rounded-md hover:bg-red-50" title="Excluir">
+                        <button onClick={() => handleDelete(item.id)} className="text-slate-400 hover:text-red-600 transition-colors p-1 rounded-md hover:bg-red-50 focus-visible:ring-2 focus-visible:ring-red-500 outline-hidden" title="Excluir" aria-label="Excluir lançamento">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -288,6 +301,9 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
                   onClick={() => {
                     if (novaContaNome.trim()) {
                       onSave('contas', { nome: novaContaNome.trim() });
+                      if (showToast) {
+                        showToast(`Conta bancária "${novaContaNome.trim()}" criada com sucesso!`, 'success');
+                      }
                       setNovaContaNome('');
                       setIsContaModalOpen(false);
                     }

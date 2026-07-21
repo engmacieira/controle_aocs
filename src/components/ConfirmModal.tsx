@@ -37,7 +37,7 @@ export function ConfirmModal({
           </div>
           <button
             onClick={onCancel}
-            className="text-rose-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-100 transition-colors"
+            className="text-rose-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-100 transition-colors focus-visible:ring-2 focus-visible:ring-rose-500 outline-hidden" aria-label="Fechar modal de confirmação"
           >
             <X className="w-5 h-5" />
           </button>
@@ -49,7 +49,7 @@ export function ConfirmModal({
           <div className="flex items-center justify-end gap-3">
             <button
               onClick={onCancel}
-              className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors"
+              className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors focus-visible:ring-2 focus-visible:ring-slate-400 rounded-lg outline-hidden"
             >
               {cancelText}
             </button>
@@ -58,7 +58,7 @@ export function ConfirmModal({
                 onConfirm();
                 onCancel();
               }}
-              className="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 shadow-sm transition-colors"
+              className="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 shadow-sm transition-colors focus-visible:ring-2 focus-visible:ring-rose-500 outline-hidden"
             >
               {confirmText}
             </button>

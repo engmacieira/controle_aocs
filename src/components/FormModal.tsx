@@ -165,7 +165,7 @@ export function FormModal({
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 outline-hidden" aria-label="Fechar modal"
           >
             <X className="w-5 h-5" />
           </button>
@@ -193,7 +193,7 @@ export function FormModal({
                   placeholder="Ex: 1"
                   value={formData.aocs || ''}
                   onChange={(e) => handleFieldChange('aocs', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div>
@@ -204,7 +204,7 @@ export function FormModal({
                   placeholder="Ex: 01/07/2026"
                   value={formData.dataAocs || ''}
                   onChange={(e) => handleFieldChange('dataAocs', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div className="col-span-2">
@@ -215,7 +215,7 @@ export function FormModal({
                   placeholder="Ex: Gênero Alimentício SCFV"
                   value={formData.resumo || ''}
                   onChange={(e) => handleFieldChange('resumo', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div className="col-span-2">
@@ -226,7 +226,7 @@ export function FormModal({
                   placeholder="Nome do fornecedor / Empresa"
                   value={formData.empresa || ''}
                   onChange={(e) => handleFieldChange('empresa', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div>
@@ -236,7 +236,7 @@ export function FormModal({
                   placeholder="Ex: ARP n° 022/2025"
                   value={formData.contratoArp || ''}
                   onChange={(e) => handleFieldChange('contratoArp', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div>
@@ -246,7 +246,7 @@ export function FormModal({
                   placeholder="Ex: Pregão Eletrônico n° 015/2025"
                   value={formData.processo || ''}
                   onChange={(e) => handleFieldChange('processo', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div className="col-span-2">
@@ -257,7 +257,7 @@ export function FormModal({
                   required
                   value={formData.valor || 0}
                   onChange={(e) => handleFieldChange('valor', parseFloat(e.target.value) || 0)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
             </div>
@@ -280,7 +280,7 @@ export function FormModal({
                       });
                     }
                   }}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-white"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm bg-white"
                 >
                   <option value="">Selecione uma AOCS para vincular...</option>
                   {aocsRecords.map(a => (
@@ -304,7 +304,7 @@ export function FormModal({
                   placeholder="Ex: 38"
                   value={formData.ordemCompra || ''}
                   onChange={(e) => handleFieldChange('ordemCompra', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div>
@@ -314,7 +314,7 @@ export function FormModal({
                   placeholder="Ex: 27-jan."
                   value={formData.dataEnvio || ''}
                   onChange={(e) => handleFieldChange('dataEnvio', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div>
@@ -324,7 +324,7 @@ export function FormModal({
                   placeholder="Ex: 182"
                   value={formData.empenho || ''}
                   onChange={(e) => handleFieldChange('empenho', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div>
@@ -334,7 +334,7 @@ export function FormModal({
                   placeholder="Ex: Dotação 234"
                   value={formData.dotacao || ''}
                   onChange={(e) => handleFieldChange('dotacao', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div>
@@ -344,7 +344,7 @@ export function FormModal({
                   placeholder="Ex: FR 1.660.000"
                   value={formData.fonte || ''}
                   onChange={(e) => handleFieldChange('fonte', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div>
@@ -352,7 +352,7 @@ export function FormModal({
                 <select
                   value={formData.contaBancaria || ''}
                   onChange={(e) => handleFieldChange('contaBancaria', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 >
                   <option value="">Selecione uma conta...</option>
                   {contasRecords.map(conta => (
@@ -380,7 +380,7 @@ export function FormModal({
                       });
                     }
                   }}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-white"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm bg-white"
                 >
                   <option value="">Selecione uma AOCS para vincular...</option>
                   {aocsRecords.map(a => (
@@ -404,7 +404,7 @@ export function FormModal({
                   placeholder="Ex: 1377"
                   value={formData.notaFiscal || ''}
                   onChange={(e) => handleFieldChange('notaFiscal', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div>
@@ -414,7 +414,7 @@ export function FormModal({
                   placeholder="Ex: 28/01"
                   value={formData.dataNF || ''}
                   onChange={(e) => handleFieldChange('dataNF', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div>
@@ -424,7 +424,7 @@ export function FormModal({
                   placeholder="Ex: 20"
                   value={formData.numeroCI || ''}
                   onChange={(e) => handleFieldChange('numeroCI', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
             </div>
@@ -441,7 +441,7 @@ export function FormModal({
                   placeholder="Ex: 20"
                   value={formData.ci || ''}
                   onChange={(e) => handleFieldChange('ci', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div>
@@ -452,7 +452,7 @@ export function FormModal({
                   placeholder="Ex: 28/01"
                   value={formData.dataCI || ''}
                   onChange={(e) => handleFieldChange('dataCI', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div className="col-span-2">
@@ -460,7 +460,7 @@ export function FormModal({
                 <select
                   value={formData.aocs || '-'}
                   onChange={(e) => handleFieldChange('aocs', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-white"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm bg-white"
                 >
                   <option value="-">Avulsa (Nenhuma / Lançamento Direto)</option>
                   {aocsRecords.map(a => (
@@ -479,7 +479,7 @@ export function FormModal({
                   type="text"
                   value={formData.ordemCompra || ''}
                   onChange={(e) => handleFieldChange('ordemCompra', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-slate-50 text-slate-500"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm bg-slate-50 text-slate-500"
                 />
               </div>
               <div>
@@ -488,7 +488,7 @@ export function FormModal({
                   type="text"
                   value={formData.empenho || ''}
                   onChange={(e) => handleFieldChange('empenho', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-slate-50 text-slate-500"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm bg-slate-50 text-slate-500"
                 />
               </div>
               <div className="col-span-2">
@@ -499,7 +499,7 @@ export function FormModal({
                   placeholder="Ex: COPASA ou AILTON ADMILSON"
                   value={formData.empresa || ''}
                   onChange={(e) => handleFieldChange('empresa', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-slate-50 text-slate-600 font-semibold"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm bg-slate-50 text-slate-600 font-semibold"
                 />
               </div>
               <div className="col-span-2">
@@ -509,7 +509,7 @@ export function FormModal({
                   placeholder="Ex: CONSUMO AGUA DEZEMBRO"
                   value={formData.resumo || ''}
                   onChange={(e) => handleFieldChange('resumo', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-slate-50 text-slate-500"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm bg-slate-50 text-slate-500"
                 />
               </div>
               <div>
@@ -520,7 +520,7 @@ export function FormModal({
                   required
                   value={formData.valor || 0}
                   onChange={(e) => handleFieldChange('valor', parseFloat(e.target.value) || 0)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-slate-50 text-slate-700 font-semibold"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm bg-slate-50 text-slate-700 font-semibold"
                 />
               </div>
               <div>
@@ -529,7 +529,7 @@ export function FormModal({
                   type="text"
                   value={formData.notaFiscal || ''}
                   onChange={(e) => handleFieldChange('notaFiscal', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-slate-50 text-slate-500"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm bg-slate-50 text-slate-500"
                 />
               </div>
               <div>
@@ -538,7 +538,7 @@ export function FormModal({
                   type="text"
                   value={formData.dotacao || ''}
                   onChange={(e) => handleFieldChange('dotacao', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-slate-50 text-slate-500"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm bg-slate-50 text-slate-500"
                 />
               </div>
               <div>
@@ -547,7 +547,7 @@ export function FormModal({
                   type="text"
                   value={formData.fonte || ''}
                   onChange={(e) => handleFieldChange('fonte', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-slate-50 text-slate-500"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm bg-slate-50 text-slate-500"
                 />
               </div>
               <div className="col-span-2">
@@ -555,7 +555,7 @@ export function FormModal({
                 <select
                   value={formData.contaBancaria || ''}
                   onChange={(e) => handleFieldChange('contaBancaria', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-slate-50 text-slate-500"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm bg-slate-50 text-slate-500"
                 >
                   <option value="">Selecione uma conta...</option>
                   {contasRecords.map(conta => (
@@ -579,7 +579,7 @@ export function FormModal({
                   placeholder="Ex: 02/02"
                   value={formData.dataPagamento || ''}
                   onChange={(e) => handleFieldChange('dataPagamento', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div>
@@ -589,7 +589,7 @@ export function FormModal({
                   step="0.01"
                   value={formData.valorPago || 0}
                   onChange={(e) => handleFieldChange('valorPago', parseFloat(e.target.value) || 0)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm font-bold text-emerald-700"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm font-bold text-emerald-700"
                 />
               </div>
               <div className="col-span-2">
@@ -597,7 +597,7 @@ export function FormModal({
                 <select
                   value={formData.status || 'Pendente'}
                   onChange={(e) => handleFieldChange('status', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-white"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm bg-white"
                 >
                   <option value="Pendente">Pendente</option>
                   <option value="Pago">Pago</option>
@@ -611,7 +611,7 @@ export function FormModal({
                   placeholder="Chave de acesso da NF"
                   value={formData.chaveAcessoNF || ''}
                   onChange={(e) => handleFieldChange('chaveAcessoNF', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm"
                 />
               </div>
               <div className="col-span-2">
@@ -619,7 +619,7 @@ export function FormModal({
                 <select
                   value={formData.conferenciaExtrato || 'Pendente'}
                   onChange={(e) => handleFieldChange('conferenciaExtrato', e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-hidden text-sm bg-white"
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 focus-visible:outline-hidden outline-hidden text-sm bg-white"
                 >
                   <option value="Sim">Sim</option>
                   <option value="Não">Não</option>
@@ -635,13 +635,13 @@ export function FormModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors"
+              className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-lg outline-hidden"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-colors"
+              className="px-5 py-2 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 outline-hidden"
             >
               Salvar Registro
             </button>
