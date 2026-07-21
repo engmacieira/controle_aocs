@@ -251,6 +251,7 @@ describe('useFirebaseData Hook', () => {
 
     mockWriteBatch.mockImplementationOnce(() => ({
       delete: vi.fn(),
+      set: vi.fn(),
       commit: vi.fn().mockRejectedValueOnce(new Error('Batch delete failed'))
     }));
     

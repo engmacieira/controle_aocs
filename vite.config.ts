@@ -21,6 +21,7 @@ export default defineConfig({
           if (id.includes('node_modules')) {
             if (id.includes('firebase')) return 'vendor-firebase';
             if (id.includes('react')) return 'vendor-react';
+            if (id.includes('xlsx')) return 'vendor-xlsx';
             return 'vendor';
           }
         }
