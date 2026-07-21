@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import * as XLSX from 'xlsx';
 import { UploadCloud, CheckCircle2, AlertCircle, X, Check, Eye } from 'lucide-react';
 import { useFirebaseData } from '../hooks/useFirebaseData';
 import { writeBatch, doc } from 'firebase/firestore';
@@ -25,9 +24,13 @@ export function CSVImporter() {
     setStatus({ type: 'info', message: `Lendo arquivo ${file.name}...` });
 
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = async (evt) => {
       try {
         const bstr = evt.target?.result;
+
+        // Dynamically import 'xlsx' (SheetJS) only when file is uploaded to optimize initial bundle size
+        const XLSX = await import('xlsx');
+
         const wb = XLSX.read(bstr, { type: 'binary' });
         const wsname = wb.SheetNames[0];
         const ws = wb.Sheets[wsname];
