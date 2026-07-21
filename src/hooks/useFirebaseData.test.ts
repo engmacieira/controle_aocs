@@ -185,7 +185,7 @@ describe('useFirebaseData Hook', () => {
     });
 
     expect(consoleErrorMock).toHaveBeenCalled();
-    expect(alertMock).toHaveBeenCalledWith('Error loading AOCS: Permission denied');
+    expect(alertMock).toHaveBeenCalledWith('Ocorreu um erro ao carregar os dados de AOCS. Por favor, tente novamente mais tarde.');
 
     alertMock.mockRestore();
     consoleErrorMock.mockRestore();
@@ -220,7 +220,7 @@ describe('useFirebaseData Hook', () => {
       await result.current.saveRecord('aocs', { id: '1' });
     });
 
-    expect(alertMock).toHaveBeenCalledWith('Error saving: Save failed');
+    expect(alertMock).toHaveBeenCalledWith('Ocorreu um erro ao salvar o registro. Tente novamente mais tarde.');
     alertMock.mockRestore();
   });
 
@@ -239,7 +239,7 @@ describe('useFirebaseData Hook', () => {
       await result.current.deleteRecord('aocs', '1');
     });
 
-    expect(alertMock).toHaveBeenCalledWith('Error deleting: Delete failed');
+    expect(alertMock).toHaveBeenCalledWith('Ocorreu um erro ao excluir o registro. Tente novamente mais tarde.');
     alertMock.mockRestore();
   });
 
@@ -263,7 +263,7 @@ describe('useFirebaseData Hook', () => {
       await result.current.deleteRecords('aocs', ['1', '2']);
     });
 
-    expect(alertMock).toHaveBeenCalledWith('Error deleting records: Batch delete failed');
+    expect(alertMock).toHaveBeenCalledWith('Ocorreu um erro ao excluir os registros selecionados. Tente novamente mais tarde.');
     alertMock.mockRestore();
   });
 });
