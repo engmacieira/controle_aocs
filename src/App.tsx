@@ -18,7 +18,8 @@ import {
   Landmark,
   Menu,
   X,
-  Receipt
+  Receipt,
+  FolderOpen
 } from 'lucide-react';
 
 import { 
@@ -36,6 +37,7 @@ import { ContaDetalhes } from './components/ContaDetalhes';
 import { FormModal } from './components/FormModal';
 import { ConfirmModal } from './components/ConfirmModal';
 import { useFirebaseData } from './hooks/useFirebaseData';
+import { RegistroAtividades } from './components/RegistroAtividades';
 
 export default function App() {
   const {
@@ -49,7 +51,8 @@ export default function App() {
     contasRecords,
     saveRecord,
     deleteRecord,
-    deleteRecords
+    deleteRecords,
+    registroAtividadesRecords
   } = useFirebaseData();
 
   // --- Toast Notification State ---
@@ -65,7 +68,7 @@ export default function App() {
 
 
   // --- Active Tab State ---
-  const [activeTab, setActiveTab] = React.useState<'relatorio' | 'aocs' | 'pedidos' | 'faturamento' | 'ci' | 'espelho' | 'conta_detalhes'>('relatorio');
+  const [activeTab, setActiveTab] = React.useState<'relatorio' | 'aocs' | 'pedidos' | 'faturamento' | 'ci' | 'espelho' | 'conta_detalhes' | 'registro_atividades'>('relatorio');
   const [selectedConta, setSelectedConta] = React.useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
@@ -180,10 +183,29 @@ export default function App() {
     setIsModalOpen(true);
   };
 
-  const handleTabChange = (tab: typeof activeTab) => {
+  const handleTabChange = (tab: 'relatorio' | 'aocs' | 'pedidos' | 'faturamento' | 'ci' | 'espelho' | 'conta_detalhes' | 'registro_atividades') => {
     setActiveTab(tab);
     if (tab !== 'conta_detalhes') setSelectedConta(null);
     setMobileMenuOpen(false);
+  };
+
+
+  // --- Atividades Actions Handlers ---
+  const handleSaveAtividade = async (item: any) => {
+    await saveRecord('registro_atividades', item);
+    showToast('Registro de atividade gravado com sucesso!', 'success');
+  };
+
+  const handleDeleteAtividade = (id: string, title: string) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: 'Excluir Atividade',
+      message: `Tem certeza de que deseja excluir o registro de atividade "\${title}"? Esta ação não pode ser desfeita.`,
+      onConfirm: async () => {
+        await deleteRecord('registro_atividades', id);
+        showToast(`Atividade "\${title}" excluída com sucesso!`, 'success');
+      }
+    });
   };
 
   const handleViewContaDetails = (conta: string) => {
@@ -198,6 +220,7 @@ export default function App() {
     { id: 'pedidos', label: 'Pedidos de Compra', icon: ShoppingCart },
     { id: 'faturamento', label: 'Faturamento AOCS', icon: Receipt },
     { id: 'ci', label: 'Financeiro CI', icon: Landmark },
+    { id: 'registro_atividades', label: 'Comprovação de Atividades', icon: FolderOpen },
   ] as const;
 
   return (
@@ -439,6 +462,17 @@ export default function App() {
                     conta={selectedConta}
                     aocsRecords={aocsRecords}
                     ciRecords={ciRecords}
+                  />
+                )}
+
+                {activeTab === 'registro_atividades' && (
+                  <RegistroAtividades
+                    records={registroAtividadesRecords}
+                    aocsRecords={aocsRecords}
+                    ciRecords={ciRecords}
+                    userEmail={user ? user.email : null}
+                    onSave={handleSaveAtividade}
+                    onDelete={handleDeleteAtividade}
                   />
                 )}
 
