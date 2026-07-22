@@ -72,6 +72,19 @@ export interface ContaBancariaRecord {
   nome: string;
 }
 
+export interface LancamentoFuturo {
+  id: string;
+  conta_id: string;
+  descricao: string;
+  valor: number;
+  data_prevista: string;
+  recorrente: boolean;
+  status: 'ATIVO' | 'CANCELADO';
+  created_at: string;
+  tipo_categoria?: string;
+  tipo_lancamento: 'entrada' | 'saida';
+}
+
 export type SortOrder = 'asc' | 'desc';
 
 export interface RegistroAtividadeRecord {
