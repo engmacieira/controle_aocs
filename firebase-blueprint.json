@@ -84,6 +84,32 @@
         "contaBancaria": "string",
         "conferenciaExtrato": "string"
       }
+    },
+    "registro_atividades": {
+      "rules": "allow read, write: if true;",
+      "indexes": [],
+      "schema": {
+        "tipo": "string",
+        "documento_numero": "string",
+        "data": "string",
+        "comentario": "string",
+        "usuario": "string"
+      }
+    },
+    "lancamentos_futuros": {
+      "rules": "allow read, write: if true;",
+      "indexes": [],
+      "schema": {
+        "conta_id": "string",
+        "descricao": "string",
+        "valor": "number",
+        "data_prevista": "string",
+        "recorrente": "boolean",
+        "status": "string",
+        "created_at": "string",
+        "tipo_categoria": "string",
+        "tipo_lancamento": "string"
+      }
     }
   }
 }

@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { 
   FileSpreadsheet, 
   Download, 
@@ -38,6 +39,12 @@ import { FormModal } from './components/FormModal';
 import { ConfirmModal } from './components/ConfirmModal';
 import { useFirebaseData } from './hooks/useFirebaseData';
 import { RegistroAtividades } from './components/RegistroAtividades';
+import { ProjecaoSaldo } from './components/ProjecaoSaldo';
+
+import { Sidebar } from './components/Sidebar';
+import { MobileHeader } from './components/MobileHeader';
+import { TopActionBar } from './components/TopActionBar';
+import { ToastContainer } from './components/ToastContainer';
 
 export default function App() {
   const {
@@ -49,10 +56,11 @@ export default function App() {
     ciRecords,
     extratoRecords,
     contasRecords,
+    registroAtividadesRecords,
+    lancamentosFuturosRecords,
     saveRecord,
     deleteRecord,
-    deleteRecords,
-    registroAtividadesRecords
+    deleteRecords
   } = useFirebaseData();
 
   // --- Toast Notification State ---
@@ -67,8 +75,26 @@ export default function App() {
   };
 
 
-  // --- Active Tab State ---
-  const [activeTab, setActiveTab] = React.useState<'relatorio' | 'aocs' | 'pedidos' | 'faturamento' | 'ci' | 'espelho' | 'conta_detalhes' | 'registro_atividades'>('relatorio');
+  // --- Routing State ---
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const getActiveTab = () => {
+    const path = location.pathname;
+    if (path === '/') return 'relatorio';
+    if (path === '/espelho') return 'espelho';
+    if (path === '/projecao-saldo') return 'projecao_saldo';
+    if (path === '/aocs') return 'aocs';
+    if (path === '/pedidos') return 'pedidos';
+    if (path === '/faturamento') return 'faturamento';
+    if (path === '/ci') return 'ci';
+    if (path === '/registro-atividades') return 'registro_atividades';
+    if (path === '/conta-detalhes') return 'conta_detalhes';
+    return 'relatorio';
+  };
+
+  const activeTab = getActiveTab();
+
   const [selectedConta, setSelectedConta] = React.useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
@@ -183,8 +209,19 @@ export default function App() {
     setIsModalOpen(true);
   };
 
-  const handleTabChange = (tab: 'relatorio' | 'aocs' | 'pedidos' | 'faturamento' | 'ci' | 'espelho' | 'conta_detalhes' | 'registro_atividades') => {
-    setActiveTab(tab);
+  const handleTabChange = (tab: 'relatorio' | 'aocs' | 'pedidos' | 'faturamento' | 'ci' | 'espelho' | 'projecao_saldo' | 'conta_detalhes' | 'registro_atividades') => {
+    const pathToTab: Record<string, string> = {
+      relatorio: '/',
+      espelho: '/espelho',
+      projecao_saldo: '/projecao-saldo',
+      aocs: '/aocs',
+      pedidos: '/pedidos',
+      faturamento: '/faturamento',
+      ci: '/ci',
+      registro_atividades: '/registro-atividades',
+      conta_detalhes: '/conta-detalhes'
+    };
+    navigate(pathToTab[tab] || '/');
     if (tab !== 'conta_detalhes') setSelectedConta(null);
     setMobileMenuOpen(false);
   };
@@ -210,12 +247,13 @@ export default function App() {
 
   const handleViewContaDetails = (conta: string) => {
     setSelectedConta(conta);
-    setActiveTab('conta_detalhes');
+    navigate('/conta-detalhes');
   };
 
   const navigation = [
     { id: 'relatorio', label: 'Contas Relatório', icon: LayoutDashboard },
     { id: 'espelho', label: 'Espelho Bancário', icon: Landmark },
+    { id: 'projecao_saldo', label: 'Projeção de Saldo', icon: Sparkles },
     { id: 'aocs', label: 'AOCS (Contratação)', icon: FileCheck },
     { id: 'pedidos', label: 'Pedidos de Compra', icon: ShoppingCart },
     { id: 'faturamento', label: 'Faturamento AOCS', icon: Receipt },
@@ -226,164 +264,36 @@ export default function App() {
   return (
     <div id="app-root" className="min-h-screen bg-slate-50 flex text-slate-900 font-sans antialiased">
       
-      {/* Sidebar for Desktop */}
-      <aside className="w-64 bg-white border-r border-slate-200 hidden sm:flex flex-col sticky top-0 h-screen shrink-0">
-        <div className="p-6 border-b border-slate-100 flex items-center gap-3">
-          <div className="p-2 bg-indigo-600 rounded-xl text-white shadow-md shrink-0">
-            <FileSpreadsheet className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-sm font-bold text-slate-950 tracking-tight leading-tight">Sincronizador<br/>Financeiro</h1>
-          </div>
-        </div>
-        
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {navigation.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => handleTabChange(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === item.id 
-                  ? 'bg-indigo-50 text-indigo-700' 
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-              }`}
-            >
-              <item.icon className={`w-4 h-4 ${activeTab === item.id ? 'text-indigo-600' : 'text-slate-400'}`} />
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        {user && (
-          <div className="p-4 border-t border-slate-100">
-            <div className="flex flex-col gap-2">
-              <span className="text-xs text-slate-500 truncate px-2">{user.email}</span>
-              <button
-                onClick={logOut}
-                className="w-full px-3 py-2 rounded-lg text-slate-600 bg-slate-100 hover:bg-slate-200 font-semibold text-xs transition-all flex items-center justify-center gap-2"
-                title="Sair da conta"
-              >
-                <LogOut className="w-4 h-4" />
-                Sair
-              </button>
-            </div>
-          </div>
-        )}
-      </aside>
+      <Sidebar 
+        navigation={navigation}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        user={user}
+        onLogOut={logOut}
+      />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen min-w-0">
         
-        {/* Mobile Header */}
-        <header className="sm:hidden sticky top-0 z-40 bg-white border-b border-slate-200 shadow-xs px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-indigo-600 rounded-lg text-white">
-              <FileSpreadsheet className="w-5 h-5" />
-            </div>
-            <h1 className="text-sm font-bold text-slate-950 tracking-tight">Sincronizador</h1>
-          </div>
-          <button 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 -mr-2 text-slate-600 hover:bg-slate-100 rounded-lg"
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </header>
+        <MobileHeader 
+          navigation={navigation}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          user={user}
+          onLogOut={logOut}
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+        />
 
-        {/* Mobile Menu Overlay */}
-        {mobileMenuOpen && (
-          <div className="sm:hidden fixed inset-0 z-30 bg-black/20" onClick={() => setMobileMenuOpen(false)}>
-            <div className="absolute right-0 top-[61px] bottom-0 w-64 bg-white border-l border-slate-200 flex flex-col shadow-xl" onClick={e => e.stopPropagation()}>
-              <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-                {navigation.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleTabChange(item.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors ${
-                      activeTab === item.id 
-                        ? 'bg-indigo-50 text-indigo-700' 
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                    }`}
-                  >
-                    <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'text-indigo-600' : 'text-slate-400'}`} />
-                    {item.label}
-                  </button>
-                ))}
-              </nav>
-              {user && (
-                <div className="p-4 border-t border-slate-100">
-                  <div className="flex flex-col gap-3">
-                    <span className="text-xs text-slate-500 truncate px-2">{user.email}</span>
-                    <button
-                      onClick={logOut}
-                      className="w-full px-4 py-2.5 rounded-xl text-slate-600 bg-slate-100 hover:bg-slate-200 font-semibold text-sm transition-all flex items-center justify-center gap-2"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Sair
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Top Action Bar (Desktop) */}
-        <div className="hidden sm:flex items-center justify-between px-8 py-4 bg-white/50 backdrop-blur-sm border-b border-slate-150 sticky top-0 z-10">
-          <h2 className="text-lg font-semibold text-slate-800">
-            {activeTab === 'conta_detalhes' ? `Detalhes da Conta: ${selectedConta || ''}` : navigation.find(n => n.id === activeTab)?.label}
-          </h2>
-          
-          <div className="flex items-center gap-3">
-            {!user ? (
-              <button
-                onClick={signIn}
-                className="px-4 py-2 rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 font-semibold text-xs transition-all flex items-center gap-2 shadow-sm"
-              >
-                <LogIn className="w-4 h-4" />
-                Entrar com Google
-              </button>
-            ) : null}
-
-            {activeTab !== 'relatorio' && activeTab !== 'conta_detalhes' && (
-              <button
-                onClick={handleExportCSV}
-                className="px-4 py-2 rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition-all flex items-center gap-2 shadow-sm"
-                title="Exportar aba ativa para planilha CSV"
-              >
-                <Download className="w-4 h-4 text-slate-500" />
-                Exportar CSV
-              </button>
-            )}
-            {activeTab === 'conta_detalhes' && (
-              <button
-                onClick={() => handleTabChange('relatorio')}
-                className="px-4 py-2 rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition-all flex items-center gap-2 shadow-sm"
-              >
-                Voltar
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Action Bar (Mobile) */}
-        <div className="sm:hidden flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200 gap-2 overflow-x-auto">
-          {!user ? (
-            <button onClick={signIn} className="px-3 py-1.5 rounded-lg text-white bg-indigo-600 font-semibold text-xs whitespace-nowrap">
-              Entrar
-            </button>
-          ) : null}
-          {activeTab !== 'relatorio' && activeTab !== 'conta_detalhes' && (
-            <button onClick={handleExportCSV} className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-semibold text-xs whitespace-nowrap">
-              Exportar
-            </button>
-          )}
-          {activeTab === 'conta_detalhes' && (
-            <button onClick={() => handleTabChange('relatorio')} className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 font-semibold text-xs whitespace-nowrap">
-              Voltar
-            </button>
-          )}
-        </div>
+        <TopActionBar 
+          activeTab={activeTab}
+          selectedConta={selectedConta}
+          navigation={navigation}
+          user={user}
+          onSignIn={signIn}
+          onExportCSV={handleExportCSV}
+          onTabChange={handleTabChange}
+        />
 
         <main className="flex-1 p-4 sm:p-8 space-y-6">
           
@@ -412,80 +322,99 @@ export default function App() {
               </div>
             ) : (
               <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                {activeTab === 'aocs' && (
-                  <AocsTable
-                    records={aocsRecords}
-                    onEdit={handleEditClick}
-                    onDelete={(id, num) => handleDelete(id, `AOCS #${num}`)}
-                    onBulkDelete={handleBulkDelete}
-                    onAdd={handleAddClick}
-                  />
-                )}
+                <Routes>
+                  <Route path="/aocs" element={
+                    <AocsTable
+                      records={aocsRecords}
+                      onEdit={handleEditClick}
+                      onDelete={(id, num) => handleDelete(id, `AOCS #${num}`)}
+                      onBulkDelete={handleBulkDelete}
+                      onAdd={handleAddClick}
+                    />
+                  } />
 
-                {activeTab === 'pedidos' && (
-                  <PedidosTable
-                    records={aocsRecords}
-                    onEdit={handleEditClick}
-                    onAdd={handleAddClick}
-                  />
-                )}
+                  <Route path="/pedidos" element={
+                    <PedidosTable
+                      records={aocsRecords}
+                      onEdit={handleEditClick}
+                      onAdd={handleAddClick}
+                    />
+                  } />
 
-                {activeTab === 'faturamento' && (
-                  <FaturamentoTable
-                    records={aocsRecords}
-                    onEdit={handleEditClick}
-                    onAdd={handleAddClick}
-                  />
-                )}
+                  <Route path="/faturamento" element={
+                    <FaturamentoTable
+                      records={aocsRecords}
+                      onEdit={handleEditClick}
+                      onAdd={handleAddClick}
+                    />
+                  } />
 
-                {activeTab === 'ci' && (
-                  <CiTable
-                    records={ciRecords}
-                    contasRecords={contasRecords}
-                    onEdit={handleEditClick}
-                    onDelete={(id, ciNum) => handleDelete(id, `CI #${ciNum}`)}
-                    onBulkDelete={handleBulkDelete}
-                    onAdd={handleAddClick}
-                  />
-                )}
+                  <Route path="/ci" element={
+                    <CiTable
+                      records={ciRecords}
+                      contasRecords={contasRecords}
+                      onEdit={handleEditClick}
+                      onDelete={(id, ciNum) => handleDelete(id, `CI #${ciNum}`)}
+                      onBulkDelete={handleBulkDelete}
+                      onAdd={handleAddClick}
+                    />
+                  } />
 
-                {activeTab === 'relatorio' && (
-                  <ContasRelatorio
-                    aocsRecords={aocsRecords}
-                    ciRecords={ciRecords}
-                    onViewDetails={handleViewContaDetails}
-                  />
-                )}
+                  <Route path="/" element={
+                    <ContasRelatorio
+                      aocsRecords={aocsRecords}
+                      ciRecords={ciRecords}
+                      onViewDetails={handleViewContaDetails}
+                    />
+                  } />
 
-                {activeTab === 'conta_detalhes' && selectedConta && (
-                  <ContaDetalhes
-                    conta={selectedConta}
-                    aocsRecords={aocsRecords}
-                    ciRecords={ciRecords}
-                  />
-                )}
+                  <Route path="/conta-detalhes" element={
+                    selectedConta ? (
+                      <ContaDetalhes
+                        conta={selectedConta}
+                        aocsRecords={aocsRecords}
+                        ciRecords={ciRecords}
+                      />
+                    ) : <Navigate to="/" replace />
+                  } />
 
-                {activeTab === 'registro_atividades' && (
-                  <RegistroAtividades
-                    records={registroAtividadesRecords}
-                    aocsRecords={aocsRecords}
-                    ciRecords={ciRecords}
-                    userEmail={user ? user.email : null}
-                    onSave={handleSaveAtividade}
-                    onDelete={handleDeleteAtividade}
-                  />
-                )}
+                  <Route path="/registro-atividades" element={
+                    <RegistroAtividades
+                      records={registroAtividadesRecords}
+                      aocsRecords={aocsRecords}
+                      ciRecords={ciRecords}
+                      userEmail={user ? user.email : null}
+                      onSave={handleSaveAtividade}
+                      onDelete={handleDeleteAtividade}
+                    />
+                  } />
 
-                {activeTab === 'espelho' && (
-                  <EspelhoBancario 
-                    extratoRecords={extratoRecords}
-                    ciRecords={ciRecords}
-                    contasRecords={contasRecords}
-                    onSave={saveRecord}
-                    onDelete={deleteRecord}
-                    showToast={showToast}
-                  />
-                )}
+                  <Route path="/espelho" element={
+                    <EspelhoBancario 
+                      extratoRecords={extratoRecords}
+                      ciRecords={ciRecords}
+                      contasRecords={contasRecords}
+                      onSave={saveRecord}
+                      onDelete={deleteRecord}
+                      showToast={showToast}
+                    />
+                  } />
+                  
+                  <Route path="/projecao-saldo" element={
+                    <ProjecaoSaldo
+                      aocsRecords={aocsRecords}
+                      ciRecords={ciRecords}
+                      contasRecords={contasRecords}
+                      extratoRecords={extratoRecords}
+                      lancamentosFuturosRecords={lancamentosFuturosRecords}
+                      onSaveLancamento={saveRecord}
+                      onDeleteLancamento={deleteRecord}
+                      showToast={showToast}
+                    />
+                  } />
+
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
               </div>
             )}
           </div>
@@ -516,39 +445,10 @@ export default function App() {
         onCancel={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
       />
 
-      {/* Toast Notification Container */}
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
-        {toasts.map((toast) => (
-          <div
-            key={toast.id}
-            className={`pointer-events-auto p-4 rounded-xl shadow-lg border flex items-center gap-3 animate-in fade-in slide-in-from-right-4 duration-300 min-w-72 max-w-sm ${
-              toast.type === 'success'
-                ? 'bg-emerald-50 text-emerald-800 border-emerald-150'
-                : toast.type === 'error'
-                ? 'bg-rose-50 text-rose-800 border-rose-150'
-                : 'bg-indigo-50 text-indigo-800 border-indigo-150'
-            }`}
-          >
-            {toast.type === 'success' && (
-              <span className="text-emerald-500 font-bold" aria-hidden="true">✓</span>
-            )}
-            {toast.type === 'error' && (
-              <span className="text-rose-500 font-bold" aria-hidden="true">✗</span>
-            )}
-            {toast.type === 'info' && (
-              <span className="text-indigo-500 font-bold" aria-hidden="true">ℹ</span>
-            )}
-            <p className="text-xs font-semibold leading-relaxed">{toast.message}</p>
-            <button
-              onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
-              className="ml-auto text-slate-400 hover:text-slate-600 transition-colors focus-visible:outline-hidden text-base leading-none font-bold"
-              aria-label="Fechar notificação"
-            >
-              ×
-            </button>
-          </div>
-        ))}
-      </div>
+      <ToastContainer 
+        toasts={toasts}
+        onDismiss={(id) => setToasts((prev) => prev.filter((t) => t.id !== id))}
+      />
 
     </div>
   );

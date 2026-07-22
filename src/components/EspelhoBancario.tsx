@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, Plus, ArrowRightLeft, Landmark, TrendingUp, Wallet, Edit, Trash2, X } from 'lucide-react';
+import { Download, Plus, ArrowRightLeft, Landmark, TrendingUp, Wallet, Edit, Trash2, X, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { CiRecord, ExtratoRecord, ContaBancariaRecord } from '../types';
 import { ExtratoModal } from './ExtratoModal';
 
@@ -15,6 +15,10 @@ interface EspelhoBancarioProps {
 export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSave, onDelete, showToast }: EspelhoBancarioProps) {
   const [contaFiltro, setContaFiltro] = useState(contasRecords.length > 0 ? contasRecords[0].nome : '');
   const [mesAnoFiltro, setMesAnoFiltro] = useState<string>('');
+  const [tipoFiltro, setTipoFiltro] = useState<'todos' | 'entrada' | 'saida'>('todos');
+  const [subContaFiltro, setSubContaFiltro] = useState<'todas' | 'corrente' | 'investimento'>('todas');
+  const [sortConfig, setSortConfig] = useState<{ key: keyof ExtratoRecord; direction: 'asc' | 'desc' } | null>({ key: 'data', direction: 'desc' });
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<ExtratoRecord | null>(null);
   const [defaultMode, setDefaultMode] = useState<'saida' | 'entrada' | 'transferencia'>('saida');
@@ -105,12 +109,33 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
   // Calculations
   const accountRecords = extratoRecords.filter(r => r.contaBancaria === contaFiltro);
 
-  const recordsToShow = accountRecords
+  let recordsToShow = accountRecords
     .filter(r => {
-      if (!mesAnoFiltro || mesAnoFiltro === 'todos') return true;
-      return r.data && r.data.startsWith(mesAnoFiltro);
-    })
-    .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+      if (mesAnoFiltro && mesAnoFiltro !== 'todos' && r.data && !r.data.startsWith(mesAnoFiltro)) return false;
+      if (tipoFiltro !== 'todos' && r.tipo !== tipoFiltro) return false;
+      if (subContaFiltro !== 'todas') {
+        const isCorrente = r.subConta !== 'investimento';
+        if (subContaFiltro === 'corrente' && !isCorrente) return false;
+        if (subContaFiltro === 'investimento' && isCorrente) return false;
+      }
+      return true;
+    });
+
+  if (sortConfig) {
+    recordsToShow.sort((a, b) => {
+      let valA: any = a[sortConfig.key];
+      let valB: any = b[sortConfig.key];
+
+      if (sortConfig.key === 'data') {
+        valA = new Date((valA as string) + 'T00:00:00').getTime();
+        valB = new Date((valB as string) + 'T00:00:00').getTime();
+      }
+
+      if (valA < valB) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (valA > valB) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
 
   const saldoCC = accountRecords
     .filter(r => r.subConta !== 'investimento') // default to corrente
@@ -120,15 +145,43 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
     .filter(r => r.subConta === 'investimento')
     .reduce((acc, r) => acc + (r.tipo === 'entrada' ? r.valor : -r.valor), 0);
 
-  const rendimentoMes = recordsToShow // Use filtered for this specific metric
-    .filter(r => r.subConta === 'investimento' && r.subTipo === 'rendimento')
+  const rendimentoMes = accountRecords
+    .filter(r => {
+      if (mesAnoFiltro && mesAnoFiltro !== 'todos' && r.data && !r.data.startsWith(mesAnoFiltro)) return false;
+      return r.subConta === 'investimento' && r.subTipo === 'rendimento';
+    })
     .reduce((acc, r) => acc + r.valor, 0);
+
+  const monthlyRecords = mesAnoFiltro && mesAnoFiltro !== 'todos'
+    ? accountRecords.filter(r => r.data && r.data.startsWith(mesAnoFiltro))
+    : accountRecords;
+
+  const resumoMes = {
+    cc: {
+      entradas: monthlyRecords.filter(r => r.subConta !== 'investimento' && r.tipo === 'entrada').reduce((acc, r) => acc + r.valor, 0),
+      saidas: monthlyRecords.filter(r => r.subConta !== 'investimento' && r.tipo === 'saida').reduce((acc, r) => acc + r.valor, 0),
+    },
+    inv: {
+      entradas: monthlyRecords.filter(r => r.subConta === 'investimento' && r.tipo === 'entrada').reduce((acc, r) => acc + r.valor, 0),
+      saidas: monthlyRecords.filter(r => r.subConta === 'investimento' && r.tipo === 'saida').reduce((acc, r) => acc + r.valor, 0),
+    }
+  };
+  const resultadoCCMes = resumoMes.cc.entradas - resumoMes.cc.saidas;
+  const resultadoInvMes = resumoMes.inv.entradas - resumoMes.inv.saidas;
+
+  const handleSort = (key: keyof ExtratoRecord) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6 animate-fade-in">
       {/* 1. Cabeçalho de Filtros */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-        <div className="flex flex-col sm:flex-row gap-4 flex-1">
+      <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div className="flex flex-wrap gap-4 flex-1">
           <div className="flex flex-col">
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Conta Bancária</label>
             <div className="flex items-center gap-2">
@@ -167,11 +220,37 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
               })}
             </select>
           </div>
+          <div className="flex flex-col">
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Tipo de Movimento</label>
+            <select
+              value={tipoFiltro}
+              onChange={(e) => setTipoFiltro(e.target.value as any)}
+              className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 outline-hidden text-slate-700 bg-slate-50"
+            >
+              <option value="todos">Todos</option>
+              <option value="entrada">Apenas Entradas</option>
+              <option value="saida">Apenas Saídas</option>
+            </select>
+          </div>
+          <div className="flex flex-col">
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Tipo de Conta</label>
+            <select
+              value={subContaFiltro}
+              onChange={(e) => setSubContaFiltro(e.target.value as any)}
+              className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-indigo-500 outline-hidden text-slate-700 bg-slate-50"
+            >
+              <option value="todas">Corrente + Investimento</option>
+              <option value="corrente">Apenas Corrente</option>
+              <option value="investimento">Apenas Investimento</option>
+            </select>
+          </div>
         </div>
-        <button className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm whitespace-nowrap">
-          <Download className="w-4 h-4" />
-          Exportar PDF
-        </button>
+        <div className="pt-5 xl:pt-0">
+          <button className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm whitespace-nowrap">
+            <Download className="w-4 h-4" />
+            Exportar PDF
+          </button>
+        </div>
       </div>
 
       {/* 2. Painel de Saldos */}
@@ -232,12 +311,36 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200">
-                <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Data</th>
+                <th 
+                  className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors"
+                  onClick={() => handleSort('data')}
+                >
+                  <div className="flex items-center gap-1">
+                    Data
+                    {sortConfig?.key === 'data' ? (
+                      sortConfig.direction === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                    ) : (
+                      <ArrowUpDown className="w-3 h-3 opacity-0 group-hover:opacity-50" />
+                    )}
+                  </div>
+                </th>
                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Ref/CI</th>
                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Descrição</th>
                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Dotação/Fonte</th>
                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Tipo</th>
-                <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Valor</th>
+                <th 
+                  className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right cursor-pointer hover:bg-slate-100 transition-colors"
+                  onClick={() => handleSort('valor')}
+                >
+                  <div className="flex items-center justify-end gap-1">
+                    Valor
+                    {sortConfig?.key === 'valor' ? (
+                      sortConfig.direction === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />
+                    ) : (
+                      <ArrowUpDown className="w-3 h-3 opacity-0 group-hover:opacity-50" />
+                    )}
+                  </div>
+                </th>
                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Conciliado</th>
                 <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">Ações</th>
               </tr>
@@ -300,6 +403,65 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
           </table>
         </div>
       </div>
+
+      {/* 4. Resumo do Período */}
+      {mesAnoFiltro && mesAnoFiltro !== 'todos' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 animate-fade-in">
+          {/* Resumo Conta Corrente */}
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+                <Wallet className="w-4 h-4 text-indigo-500" />
+                Resumo Mês - Conta Corrente
+              </h3>
+              <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-md">{mesAnoFiltro}</span>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <p className="text-xs text-slate-500 font-medium mb-1">Entradas</p>
+                <p className="text-sm font-semibold text-emerald-600">{formatCurrency(resumoMes.cc.entradas)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-medium mb-1">Saídas</p>
+                <p className="text-sm font-semibold text-rose-600">{formatCurrency(resumoMes.cc.saidas)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-medium mb-1">Situação Final</p>
+                <p className={`text-sm font-bold ${resultadoCCMes >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                  {resultadoCCMes >= 0 ? '+' : ''}{formatCurrency(resultadoCCMes)}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Resumo Investimento */}
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-emerald-500" />
+                Resumo Mês - Investimento
+              </h3>
+              <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-md">{mesAnoFiltro}</span>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <p className="text-xs text-slate-500 font-medium mb-1">Entradas</p>
+                <p className="text-sm font-semibold text-emerald-600">{formatCurrency(resumoMes.inv.entradas)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-medium mb-1">Saídas</p>
+                <p className="text-sm font-semibold text-rose-600">{formatCurrency(resumoMes.inv.saidas)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-medium mb-1">Situação Final</p>
+                <p className={`text-sm font-bold ${resultadoInvMes >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                  {resultadoInvMes >= 0 ? '+' : ''}{formatCurrency(resultadoInvMes)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ExtratoModal
         isOpen={isModalOpen}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
-import { AocsRecord, CiRecord, ContaBancariaRecord, RegistroAtividadeRecord } from '../types';
+import { AocsRecord, CiRecord, ContaBancariaRecord, RegistroAtividadeRecord, LancamentoFuturo } from '../types';
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, User } from 'firebase/auth';
 
 export function useFirebaseData() {
@@ -23,6 +23,7 @@ export function useFirebaseData() {
   const [extratoRecords, setExtratoRecords] = useState<any[]>([]);
   const [contasRecords, setContasRecords] = useState<ContaBancariaRecord[]>([]);
   const [registroAtividadesRecords, setRegistroAtividadesRecords] = useState<RegistroAtividadeRecord[]>([]);
+  const [lancamentosFuturosRecords, setLancamentosFuturosRecords] = useState<LancamentoFuturo[]>([]);
 
   useEffect(() => {
     if (isMock) {
@@ -45,6 +46,7 @@ export function useFirebaseData() {
       setExtratoRecords([]);
       setContasRecords([]);
       setRegistroAtividadesRecords([]);
+      setLancamentosFuturosRecords([]);
       return;
     }
 
@@ -55,6 +57,7 @@ export function useFirebaseData() {
       setExtratoRecords(getMockData('extrato'));
       setContasRecords(getMockData('contas').length ? getMockData('contas') : [{ id: '1', nome: 'Banco do Brasil - Geral' }]);
       setRegistroAtividadesRecords(getMockData('registro_atividades'));
+      setLancamentosFuturosRecords(getMockData('lancamentos_futuros'));
       
       // Periodically poll localStorage for modifications
       const interval = setInterval(() => {
@@ -63,6 +66,7 @@ export function useFirebaseData() {
         setExtratoRecords(getMockData('extrato'));
         setContasRecords(getMockData('contas').length ? getMockData('contas') : [{ id: '1', nome: 'Banco do Brasil - Geral' }]);
         setRegistroAtividadesRecords(getMockData('registro_atividades'));
+        setLancamentosFuturosRecords(getMockData('lancamentos_futuros'));
       }, 500);
 
       return () => clearInterval(interval);
@@ -96,6 +100,13 @@ export function useFirebaseData() {
     }, (err) => {
       console.error('Error loading registro_atividades:', err);
       alert('Ocorreu um erro ao carregar os dados de Registro de Atividades. Por favor, tente novamente mais tarde.');
+    }));
+    
+    unsubs.push(onSnapshot(collection(db, 'lancamentos_futuros'), (snap) => {
+      setLancamentosFuturosRecords(snap.docs.map(d => d.data() as LancamentoFuturo));
+    }, (err) => {
+      console.error('Error loading lancamentos_futuros:', err);
+      alert('Ocorreu um erro ao carregar os lançamentos futuros. Por favor, tente novamente mais tarde.');
     }));
 
     unsubs.push(onSnapshot(collection(db, 'contas'), (snap) => {
@@ -185,6 +196,7 @@ export function useFirebaseData() {
     extratoRecords,
     contasRecords,
     registroAtividadesRecords,
+    lancamentosFuturosRecords,
     saveRecord,
     deleteRecord,
     deleteRecords
