@@ -175,11 +175,11 @@ export function AocsTable({ records, onEdit, onDelete, onBulkDelete, onAdd }: Ao
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-slate-100">
-        <table className="w-full border-collapse text-left text-sm">
-          <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 font-semibold">
+      <div className="overflow-x-auto rounded-xl border border-slate-200/80 shadow-sm bg-white">
+        <table className="w-full border-separate border-spacing-0 text-left text-sm">
+          <thead className="bg-slate-100/70 text-slate-500 font-semibold text-xs uppercase tracking-wider">
             <tr>
-              <th className="px-5 py-4 w-[50px] text-center">
+              <th className="px-5 py-4 w-[50px] text-center border-b border-slate-200/80">
                 <input
                   type="checkbox"
                   className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
@@ -187,56 +187,56 @@ export function AocsTable({ records, onEdit, onDelete, onBulkDelete, onAdd }: Ao
                   onChange={handleToggleSelectAll}
                 />
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors w-[110px]" onClick={() => handleSort('aocs')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors w-[110px] border-b border-slate-200/80" onClick={() => handleSort('aocs')}>
                 <div className="flex items-center gap-2">
                   <span>AOCS #</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors w-[120px]" onClick={() => handleSort('dataAocs')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors w-[120px] border-b border-slate-200/80" onClick={() => handleSort('dataAocs')}>
                 <div className="flex items-center gap-2">
                   <span>Data AOCS</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('resumo')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors border-b border-slate-200/80" onClick={() => handleSort('resumo')}>
                 <div className="flex items-center gap-2">
                   <span>Resumo Contratação</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('empresa')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors border-b border-slate-200/80" onClick={() => handleSort('empresa')}>
                 <div className="flex items-center gap-2">
                   <span>Fornecedor</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('contratoArp')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors border-b border-slate-200/80" onClick={() => handleSort('contratoArp')}>
                 <div className="flex items-center gap-2">
                   <span>Contrato/ARP</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('processo')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors border-b border-slate-200/80" onClick={() => handleSort('processo')}>
                 <div className="flex items-center gap-2">
-                  <span>Processo Licitatório</span>
+                  <span>Processo</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors w-[140px]" onClick={() => handleSort('valor')}>
-                <div className="flex items-center gap-2">
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors w-[140px] text-right border-b border-slate-200/80" onClick={() => handleSort('valor')}>
+                <div className="flex items-center justify-end gap-2">
                   <span>Valor (R$)</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 text-right">Ações</th>
+              <th className="px-5 py-4 text-right border-b border-slate-200/80">Ações</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody>
             {paginatedRecords.length > 0 ? (
               paginatedRecords.map((rec) => (
-                <tr key={rec.id} className="hover:bg-slate-50/70 transition-colors">
-                  <td className="px-5 py-4 text-center">
+                <tr key={rec.id} className="hover:bg-slate-50/80 transition-colors group">
+                  <td className="px-5 py-4 text-center border-b border-slate-100">
                     <input
                       type="checkbox"
                       className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
@@ -244,36 +244,42 @@ export function AocsTable({ records, onEdit, onDelete, onBulkDelete, onAdd }: Ao
                       onChange={() => handleToggleSelect(rec.id)}
                     />
                   </td>
-                  <td className="px-5 py-4 font-semibold text-slate-700 font-mono">#{rec.aocs}</td>
-                  <td className="px-5 py-4 text-slate-500 whitespace-nowrap">{rec.dataAocs}</td>
-                  <td className="px-5 py-4 text-slate-600 font-medium max-w-[200px] truncate" title={rec.resumo}>
+                  <td className="px-5 py-4 font-semibold text-slate-700 font-mono border-b border-slate-100">
+                    <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded-md text-xs">#{rec.aocs}</span>
+                  </td>
+                  <td className="px-5 py-4 text-slate-500 whitespace-nowrap border-b border-slate-100">{rec.dataAocs}</td>
+                  <td className="px-5 py-4 text-slate-700 font-medium max-w-[200px] truncate border-b border-slate-100" title={rec.resumo}>
                     {rec.resumo}
                   </td>
-                  <td className="px-5 py-4 text-slate-700 font-semibold max-w-[180px] truncate" title={rec.empresa}>
+                  <td className="px-5 py-4 text-slate-700 font-semibold max-w-[180px] truncate border-b border-slate-100" title={rec.empresa}>
                     {rec.empresa}
                   </td>
-                  <td className="px-5 py-4 text-slate-500 whitespace-nowrap">{rec.contratoArp || '-'}</td>
-                  <td className="px-5 py-4 text-slate-500 max-w-[160px] truncate" title={rec.processo}>
+                  <td className="px-5 py-4 text-slate-500 whitespace-nowrap border-b border-slate-100">
+                    {rec.contratoArp ? (
+                      <span className="bg-slate-50 border border-slate-200 text-slate-600 px-2 py-1 rounded-md text-xs">{rec.contratoArp}</span>
+                    ) : '-'}
+                  </td>
+                  <td className="px-5 py-4 text-slate-500 max-w-[160px] truncate border-b border-slate-100" title={rec.processo}>
                     {rec.processo || '-'}
                   </td>
-                  <td className="px-5 py-4 font-bold text-slate-900 font-mono">
+                  <td className="px-5 py-4 font-bold text-slate-900 font-mono text-right border-b border-slate-100">
                     {rec.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                   </td>
-                  <td className="px-5 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
+                  <td className="px-5 py-4 text-right border-b border-slate-100">
+                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => onEdit(rec)}
-                        className="p-1.5 hover:bg-slate-100 text-slate-600 hover:text-indigo-600 rounded-lg transition-colors"
+                        className="p-1.5 hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 rounded-lg transition-colors"
                         title="Editar AOCS" aria-label="Editar AOCS"
                       >
-                        <Edit3 className="w-4 h-4" />
+                        <Edit3 className="w-4.5 h-4.5" />
                       </button>
                       <button
                         onClick={() => onDelete(rec.id, rec.aocs)}
-                        className="p-1.5 hover:bg-slate-100 text-slate-600 hover:text-rose-600 rounded-lg transition-colors"
+                        className="p-1.5 hover:bg-rose-50 text-slate-400 hover:text-rose-600 rounded-lg transition-colors"
                         title="Excluir AOCS" aria-label="Excluir AOCS"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4.5 h-4.5" />
                       </button>
                     </div>
                   </td>
@@ -281,7 +287,7 @@ export function AocsTable({ records, onEdit, onDelete, onBulkDelete, onAdd }: Ao
               ))
             ) : (
               <tr>
-                <td colSpan={9} className="px-5 py-12 text-center text-slate-400 text-sm">
+                <td colSpan={9} className="px-5 py-12 text-center text-slate-500 text-sm border-b border-slate-100">
                   Nenhuma AOCS encontrada.
                 </td>
               </tr>

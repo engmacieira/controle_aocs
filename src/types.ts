@@ -43,7 +43,7 @@ export interface CiRecord {
   valorPago: number;
   chaveAcessoNF: string;
   conferenciaExtrato: string;
-  status?: 'Pendente' | 'Pago' | 'Atrasado';
+  status?: 'Pendente' | 'Pago' | 'Atrasado' | 'Dispensado';
 }
 
 export interface ExtratoRecord {

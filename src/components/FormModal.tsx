@@ -602,6 +602,7 @@ export function FormModal({
                   <option value="Pendente">Pendente</option>
                   <option value="Pago">Pago</option>
                   <option value="Atrasado">Atrasado</option>
+                  <option value="Dispensado">Dispensado</option>
                 </select>
               </div>
               <div className="col-span-2">

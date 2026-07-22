@@ -197,53 +197,55 @@ export function PedidosTable({ records, onEdit, onAdd }: PedidosTableProps) {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-slate-100">
-        <table className="w-full border-collapse text-left text-sm">
-          <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 font-semibold">
+      <div className="overflow-x-auto rounded-xl border border-slate-200/80 shadow-sm bg-white">
+        <table className="w-full border-separate border-spacing-0 text-left text-sm">
+          <thead className="bg-slate-100/70 text-slate-500 font-semibold text-xs uppercase tracking-wider">
             <tr>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors w-[100px]" onClick={() => handleSort('aocs')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors w-[100px] border-b border-slate-200/80" onClick={() => handleSort('aocs')}>
                 <div className="flex items-center gap-2">
                   <span>AOCS #</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('empresa')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors border-b border-slate-200/80" onClick={() => handleSort('empresa')}>
                 <div className="flex items-center gap-2">
                   <span>Fornecedor</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('ordemCompra')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors border-b border-slate-200/80" onClick={() => handleSort('ordemCompra')}>
                 <div className="flex items-center gap-2">
                   <span>Ordem de Compra (OC)</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('dataEnvio')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors border-b border-slate-200/80" onClick={() => handleSort('dataEnvio')}>
                 <div className="flex items-center gap-2">
                   <span>Data Envio</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('empenho')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors border-b border-slate-200/80" onClick={() => handleSort('empenho')}>
                 <div className="flex items-center gap-2">
                   <span>Empenho</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4">Dotação / Fonte</th>
-              <th className="px-5 py-4">Conta Bancária</th>
-              <th className="px-5 py-4 text-right">Ações</th>
+              <th className="px-5 py-4 border-b border-slate-200/80">Dotação / Fonte</th>
+              <th className="px-5 py-4 border-b border-slate-200/80">Conta Bancária</th>
+              <th className="px-5 py-4 text-right border-b border-slate-200/80">Ações</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody>
             {paginatedRecords.length > 0 ? (
               paginatedRecords.map((rec) => {
                 const isLinked = rec.ordemCompra && String(rec.ordemCompra).trim() !== '';
                 return (
-                  <tr key={rec.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="px-5 py-4 font-semibold text-slate-700 font-mono">#{rec.aocs}</td>
-                    <td className="px-5 py-4">
+                  <tr key={rec.id} className="hover:bg-slate-50/80 transition-colors group">
+                    <td className="px-5 py-4 font-semibold text-slate-700 font-mono border-b border-slate-100">
+                      <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded-md text-xs">#{rec.aocs}</span>
+                    </td>
+                    <td className="px-5 py-4 border-b border-slate-100">
                       <div className="space-y-0.5">
                         <p className="font-semibold text-slate-800 truncate max-w-[180px]" title={rec.empresa}>
                           {rec.empresa}
@@ -253,35 +255,35 @@ export function PedidosTable({ records, onEdit, onAdd }: PedidosTableProps) {
                         </p>
                       </div>
                     </td>
-                    <td className="px-5 py-4 font-semibold">
+                    <td className="px-5 py-4 font-semibold border-b border-slate-100">
                       {isLinked ? (
                         <span className="text-slate-800 font-mono">#{rec.ordemCompra}</span>
                       ) : (
-                        <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-md border border-amber-100">Pendente</span>
+                        <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100 uppercase tracking-wider">Pendente</span>
                       )}
                     </td>
-                    <td className="px-5 py-4 text-slate-500 whitespace-nowrap">{rec.dataEnvio || '-'}</td>
-                    <td className="px-5 py-4 font-semibold text-slate-600 font-mono">{rec.empenho || '-'}</td>
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-4 text-slate-500 whitespace-nowrap border-b border-slate-100">{rec.dataEnvio || '-'}</td>
+                    <td className="px-5 py-4 font-semibold text-slate-600 font-mono border-b border-slate-100">{rec.empenho || '-'}</td>
+                    <td className="px-5 py-4 border-b border-slate-100">
                       <div className="space-y-0.5">
                         <p className="text-xs font-semibold text-slate-700">{rec.dotacao || '-'}</p>
                         <p className="text-[10px] text-slate-400 font-mono">{rec.fonte || '-'}</p>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-xs font-semibold text-slate-500 max-w-[160px] truncate" title={rec.contaBancaria}>
+                    <td className="px-5 py-4 text-xs font-semibold text-slate-500 max-w-[160px] truncate border-b border-slate-100" title={rec.contaBancaria}>
                       {rec.contaBancaria ? (
                         <div className="flex items-center gap-1">
-                          <Landmark className="w-3 h-3 text-slate-400 shrink-0" />
+                          <Landmark className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <span className="truncate">{rec.contaBancaria}</span>
                         </div>
                       ) : (
                         <span className="text-slate-300 font-normal">-</span>
                       )}
                     </td>
-                    <td className="px-5 py-4 text-right">
+                    <td className="px-5 py-4 text-right border-b border-slate-100">
                       <button
                         onClick={() => onEdit(rec)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 hover:bg-slate-100 text-indigo-600 rounded-lg transition-colors font-semibold text-xs"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 hover:bg-indigo-50 text-indigo-600 border border-transparent hover:border-indigo-100 rounded-lg transition-colors font-semibold text-xs opacity-0 group-hover:opacity-100"
                         title="Vincular / Editar Pedido" aria-label="Vincular ou Editar Pedido"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -293,7 +295,7 @@ export function PedidosTable({ records, onEdit, onAdd }: PedidosTableProps) {
               })
             ) : (
               <tr>
-                <td colSpan={8} className="px-5 py-12 text-center text-slate-400 text-sm">
+                <td colSpan={8} className="px-5 py-12 text-center text-slate-500 text-sm border-b border-slate-100">
                   Nenhum registro de pedido encontrado.
                 </td>
               </tr>

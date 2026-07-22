@@ -103,43 +103,43 @@ export function ExtratoModal({ isOpen, onClose, onSave, itemToEdit, ciRecords, c
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-slate-100">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-slate-200">
+        <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-slate-50/50">
           <h2 className="text-xl font-bold text-slate-900">
             {itemToEdit ? 'Editar Lançamento' : 'Novo Lançamento'}
           </h2>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-100 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 outline-hidden" aria-label="Fechar modal de extrato">
+          <button onClick={onClose} className="p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-600 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 outline-hidden" aria-label="Fechar modal de extrato">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {!itemToEdit && (
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de Lançamento</label>
-                <div className="flex gap-4">
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="tipo" value="saida" checked={formData.tipo === 'saida'} onChange={handleChange} />
-                    Saída / Tarifa
+              <div className="col-span-1 md:col-span-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Tipo de Lançamento</label>
+                <div className="flex flex-wrap gap-4">
+                  <label className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                    <input type="radio" name="tipo" value="saida" checked={formData.tipo === 'saida'} onChange={handleChange} className="text-indigo-600 focus:ring-indigo-500" />
+                    <span className="text-sm font-medium text-slate-700">Saída / Tarifa</span>
                   </label>
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="tipo" value="entrada" checked={formData.tipo === 'entrada'} onChange={handleChange} />
-                    Nova Entrada
+                  <label className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                    <input type="radio" name="tipo" value="entrada" checked={formData.tipo === 'entrada'} onChange={handleChange} className="text-indigo-600 focus:ring-indigo-500" />
+                    <span className="text-sm font-medium text-slate-700">Nova Entrada</span>
                   </label>
-                  <label className="flex items-center gap-2">
-                    <input type="radio" name="tipo" value="transferencia" checked={formData.tipo === 'transferencia'} onChange={handleChange} />
-                    Transferência
+                  <label className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                    <input type="radio" name="tipo" value="transferencia" checked={formData.tipo === 'transferencia'} onChange={handleChange} className="text-indigo-600 focus:ring-indigo-500" />
+                    <span className="text-sm font-medium text-slate-700">Transferência</span>
                   </label>
                 </div>
               </div>
             )}
 
             {formData.tipo === 'saida' && (
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Origem da Saída</label>
-                <select name="subTipo" value={formData.subTipo || 'avulso'} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
+              <div className="col-span-1 md:col-span-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Origem da Saída</label>
+                <select name="subTipo" value={formData.subTipo || 'avulso'} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-hidden transition-all sm:text-sm">
                   <option value="avulso">Lançamento Avulso (Tarifa/Outros)</option>
                   <option value="ci">Referenciar CI Existente</option>
                 </select>
@@ -147,9 +147,9 @@ export function ExtratoModal({ isOpen, onClose, onSave, itemToEdit, ciRecords, c
             )}
 
             {formData.tipo === 'saida' && formData.subTipo === 'ci' && (
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Selecionar CI</label>
-                <select onChange={handleCiChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
+              <div className="col-span-1 md:col-span-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Selecionar CI</label>
+                <select onChange={handleCiChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-hidden transition-all sm:text-sm">
                   <option value="">Selecione uma CI...</option>
                   {ciRecords.map(ci => (
                     <option key={ci.id} value={ci.id}>{ci.ci} - {ci.resumo}</option>
@@ -159,9 +159,9 @@ export function ExtratoModal({ isOpen, onClose, onSave, itemToEdit, ciRecords, c
             )}
 
             {formData.tipo === 'entrada' && (
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de Entrada</label>
-                <select name="subTipo" value={formData.subTipo || 'rendimento'} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
+              <div className="col-span-1 md:col-span-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Tipo de Entrada</label>
+                <select name="subTipo" value={formData.subTipo || 'rendimento'} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-hidden transition-all sm:text-sm">
                   <option value="rendimento">Rendimento de Aplicação</option>
                   <option value="repasse">Repasse Financeiro</option>
                   <option value="avulso">Outras Entradas</option>
@@ -170,28 +170,28 @@ export function ExtratoModal({ isOpen, onClose, onSave, itemToEdit, ciRecords, c
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Data</label>
-              <input type="date" name="data" value={formData.data || ''} onChange={handleChange} required className="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+              <label className="block text-sm font-semibold text-slate-700 mb-1">Data</label>
+              <input type="date" name="data" value={formData.data || ''} onChange={handleChange} required className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-hidden transition-all sm:text-sm" />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Valor</label>
-              <input type="number" step="0.01" name="valor" value={formData.valor || ''} onChange={handleChange} required className="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+              <label className="block text-sm font-semibold text-slate-700 mb-1">Valor</label>
+              <input type="number" step="0.01" name="valor" value={formData.valor || ''} onChange={handleChange} required className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-hidden transition-all sm:text-sm" />
             </div>
 
             {formData.tipo === 'transferencia' ? (
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Sentido da Transferência</label>
-                <select name="subTipo" value={formData.subTipo || 'aplicacao'} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
+              <div className="col-span-1 md:col-span-2">
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Sentido da Transferência</label>
+                <select name="subTipo" value={formData.subTipo || 'aplicacao'} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-hidden transition-all sm:text-sm">
                   <option value="aplicacao">Aplicação (Conta Corrente ➔ Investimentos)</option>
                   <option value="resgate">Resgate (Investimentos ➔ Conta Corrente)</option>
                 </select>
               </div>
             ) : null}
 
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">Conta Bancária</label>
-              <select name="contaBancaria" value={formData.contaBancaria || ''} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg">
+            <div className="col-span-1 md:col-span-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-1">Conta Bancária</label>
+              <select name="contaBancaria" value={formData.contaBancaria || ''} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-hidden transition-all sm:text-sm">
                 {contasRecords.map(conta => (
                   <option key={conta.id} value={conta.nome}>{conta.nome}</option>
                 ))}
@@ -200,26 +200,26 @@ export function ExtratoModal({ isOpen, onClose, onSave, itemToEdit, ciRecords, c
 
             {formData.tipo !== 'transferencia' && (
               <>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Descrição</label>
-                  <input type="text" name="descricao" value={formData.descricao || ''} onChange={handleChange} required className="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+                <div className="col-span-1 md:col-span-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Descrição</label>
+                  <input type="text" name="descricao" value={formData.descricao || ''} onChange={handleChange} required className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-hidden transition-all sm:text-sm" />
                 </div>
 
                 {formData.tipo === 'saida' && formData.subTipo !== 'ci' && (
-                  <div className="col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Dotação / Fonte (Opcional)</label>
-                    <input type="text" name="dotacao" value={formData.dotacao || ''} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg" />
+                  <div className="col-span-1 md:col-span-2">
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">Dotação / Fonte (Opcional)</label>
+                    <input type="text" name="dotacao" value={formData.dotacao || ''} onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-hidden transition-all sm:text-sm" />
                   </div>
                 )}
               </>
             )}
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-50 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-slate-400 outline-hidden">
+          <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
+            <button type="button" onClick={onClose} className="px-5 py-2.5 text-slate-600 font-semibold hover:bg-slate-100 rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-slate-400 outline-hidden">
               Cancelar
             </button>
-            <button type="submit" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 outline-hidden">
+            <button type="submit" className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-colors shadow-xs focus-visible:ring-2 focus-visible:ring-indigo-500 outline-hidden">
               Salvar Lançamento
             </button>
           </div>

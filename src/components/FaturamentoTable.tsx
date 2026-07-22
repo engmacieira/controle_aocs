@@ -202,57 +202,59 @@ export function FaturamentoTable({ records, onEdit, onAdd }: FaturamentoTablePro
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-slate-100">
-        <table className="w-full border-collapse text-left text-sm">
-          <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 font-semibold">
+      <div className="overflow-x-auto rounded-xl border border-slate-200/80 shadow-sm bg-white">
+        <table className="w-full border-separate border-spacing-0 text-left text-sm">
+          <thead className="bg-slate-100/70 text-slate-500 font-semibold text-xs uppercase tracking-wider">
             <tr>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors w-[100px]" onClick={() => handleSort('aocs')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors w-[100px] border-b border-slate-200/80" onClick={() => handleSort('aocs')}>
                 <div className="flex items-center gap-2">
                   <span>AOCS #</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('empresa')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors border-b border-slate-200/80" onClick={() => handleSort('empresa')}>
                 <div className="flex items-center gap-2">
                   <span>Fornecedor</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('valor')}>
-                <div className="flex items-center gap-2">
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors text-right border-b border-slate-200/80" onClick={() => handleSort('valor')}>
+                <div className="flex items-center justify-end gap-2">
                   <span>Valor Contrato (R$)</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('notaFiscal')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors border-b border-slate-200/80" onClick={() => handleSort('notaFiscal')}>
                 <div className="flex items-center gap-2">
                   <span>Nota Fiscal</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('dataNF')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors border-b border-slate-200/80" onClick={() => handleSort('dataNF')}>
                 <div className="flex items-center gap-2">
                   <span>Data NF</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('numeroCI')}>
+              <th className="px-5 py-4 cursor-pointer hover:bg-slate-200/50 transition-colors border-b border-slate-200/80" onClick={() => handleSort('numeroCI')}>
                 <div className="flex items-center gap-2">
                   <span>Número CI Atribuído</span>
                   <ArrowUpDown className="w-3.5 h-3.5" />
                 </div>
               </th>
-              <th className="px-5 py-4 text-right">Ações</th>
+              <th className="px-5 py-4 text-right border-b border-slate-200/80">Ações</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody>
             {paginatedRecords.length > 0 ? (
               paginatedRecords.map((rec) => {
                 const hasNF = rec.notaFiscal && String(rec.notaFiscal).trim() !== '';
                 return (
-                  <tr key={rec.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="px-5 py-4 font-semibold text-slate-700 font-mono">#{rec.aocs}</td>
-                    <td className="px-5 py-4">
+                  <tr key={rec.id} className="hover:bg-slate-50/80 transition-colors group">
+                    <td className="px-5 py-4 font-semibold text-slate-700 font-mono border-b border-slate-100">
+                      <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded-md text-xs">#{rec.aocs}</span>
+                    </td>
+                    <td className="px-5 py-4 border-b border-slate-100">
                       <div className="space-y-0.5">
                         <p className="font-semibold text-slate-800 truncate max-w-[200px]" title={rec.empresa}>
                           {rec.empresa}
@@ -262,23 +264,23 @@ export function FaturamentoTable({ records, onEdit, onAdd }: FaturamentoTablePro
                         </p>
                       </div>
                     </td>
-                    <td className="px-5 py-4 font-bold text-slate-900 font-mono">
+                    <td className="px-5 py-4 font-bold text-slate-900 font-mono text-right border-b border-slate-100">
                       {rec.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-4 border-b border-slate-100">
                       {hasNF ? (
-                        <div className="flex items-center gap-1 text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-100 px-2.5 py-1 rounded-lg w-max font-mono">
-                          <Receipt className="w-3.5 h-3.5 text-slate-400" />
+                        <div className="flex items-center gap-1 text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full w-max font-mono">
+                          <Receipt className="w-3.5 h-3.5 text-slate-500" />
                           <span>NF {rec.notaFiscal}</span>
                         </div>
                       ) : (
-                        <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-md border border-amber-100">Aguardando NF</span>
+                        <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100 uppercase tracking-wider">Aguardando NF</span>
                       )}
                     </td>
-                    <td className="px-5 py-4 text-slate-500 font-mono whitespace-nowrap">{rec.dataNF || '-'}</td>
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-4 text-slate-500 font-mono whitespace-nowrap border-b border-slate-100">{rec.dataNF || '-'}</td>
+                    <td className="px-5 py-4 border-b border-slate-100">
                       {rec.numeroCI ? (
-                        <div className="flex items-center gap-1 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-lg w-max font-mono">
+                        <div className="flex items-center gap-1 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-full w-max font-mono">
                           <FileSignature className="w-3.5 h-3.5 text-indigo-500" />
                           <span>CI #{rec.numeroCI}</span>
                         </div>
@@ -286,10 +288,10 @@ export function FaturamentoTable({ records, onEdit, onAdd }: FaturamentoTablePro
                         <span className="text-slate-300 font-mono font-normal">-</span>
                       )}
                     </td>
-                    <td className="px-5 py-4 text-right">
+                    <td className="px-5 py-4 text-right border-b border-slate-100">
                       <button
                         onClick={() => onEdit(rec)}
-                        className="inline-flex items-center gap-1 px-2.5 py-1.5 hover:bg-slate-100 text-indigo-600 rounded-lg transition-colors font-semibold text-xs"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 hover:bg-indigo-50 text-indigo-600 border border-transparent hover:border-indigo-100 rounded-lg transition-colors font-semibold text-xs opacity-0 group-hover:opacity-100"
                         title="Vincular / Editar Faturamento" aria-label="Vincular ou Editar Faturamento"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -301,7 +303,7 @@ export function FaturamentoTable({ records, onEdit, onAdd }: FaturamentoTablePro
               })
             ) : (
               <tr>
-                <td colSpan={7} className="px-5 py-12 text-center text-slate-400 text-sm">
+                <td colSpan={7} className="px-5 py-12 text-center text-slate-500 text-sm border-b border-slate-100">
                   Nenhum faturamento encontrado.
                 </td>
               </tr>

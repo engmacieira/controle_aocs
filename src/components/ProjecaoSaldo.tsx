@@ -161,38 +161,44 @@ export function ProjecaoSaldo({
 
       {/* 2. Cards de Resumo */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div className="bg-white p-6 rounded-xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-slate-500">Saldo Atual em Conta</h3>
-            <Wallet className="w-5 h-5 text-indigo-500" />
+            <Wallet className="w-5 h-5 text-indigo-600" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-slate-900">{formatCurrency(saldoAtual)}</p>
+            <p className="text-2xl font-bold text-slate-900 font-mono">{formatCurrency(saldoAtual)}</p>
             <p className="text-xs text-slate-400 mt-1">Saldo Bruto (CC + Aplicações)</p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-emerald-600">Entradas Previstas</h3>
-            <TrendingUp className="w-5 h-5 text-emerald-500" />
+        <div className="bg-white p-6 rounded-xl border border-emerald-100 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+          <div className="absolute inset-0 bg-linear-to-br from-emerald-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="flex items-center justify-between mb-4 relative z-10">
+            <h3 className="text-sm font-medium text-emerald-700">Entradas Previstas</h3>
+            <div className="p-2 bg-emerald-50 rounded-lg">
+              <TrendingUp className="w-4 h-4 text-emerald-600" />
+            </div>
           </div>
-          <div>
-            <p className="text-2xl font-bold text-emerald-600">{formatCurrency(entradasFuturas)}</p>
-            <p className="text-xs text-emerald-500/70 mt-1">
+          <div className="relative z-10">
+            <p className="text-2xl font-bold text-emerald-700 font-mono">{formatCurrency(entradasFuturas)}</p>
+            <p className="text-xs text-emerald-600/70 mt-1">
               Repasses e créditos futuros
             </p>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-xl border border-rose-100 shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-rose-600">Total Comprometido</h3>
-            <TrendingDown className="w-5 h-5 text-rose-500" />
+        <div className="bg-white p-6 rounded-xl border border-rose-100 shadow-sm flex flex-col justify-between relative overflow-hidden group">
+          <div className="absolute inset-0 bg-linear-to-br from-rose-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="flex items-center justify-between mb-4 relative z-10">
+            <h3 className="text-sm font-medium text-rose-700">Total Comprometido</h3>
+            <div className="p-2 bg-rose-50 rounded-lg">
+              <TrendingDown className="w-4 h-4 text-rose-600" />
+            </div>
           </div>
-          <div>
-            <p className="text-2xl font-bold text-rose-600">{formatCurrency(saldoComprometidoTotal)}</p>
-            <p className="text-xs text-rose-500/70 mt-1">
+          <div className="relative z-10">
+            <p className="text-2xl font-bold text-rose-700 font-mono">{formatCurrency(saldoComprometidoTotal)}</p>
+            <p className="text-xs text-rose-600/70 mt-1">
               Pendentes: {formatCurrency(comprometidoOrdens)} | Futuros: {formatCurrency(saidasFuturas)}
             </p>
           </div>
@@ -200,24 +206,24 @@ export function ProjecaoSaldo({
 
         <div className={`p-6 rounded-xl border shadow-sm flex flex-col justify-between ${
           saldoDisponivelReal >= 0 
-            ? 'bg-emerald-50 border-emerald-200' 
-            : 'bg-red-50 border-red-200'
+            ? 'bg-emerald-50/50 border-emerald-200/50' 
+            : 'bg-rose-50/50 border-rose-200/50'
         }`}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className={`text-sm font-bold ${saldoDisponivelReal >= 0 ? 'text-emerald-900' : 'text-red-900'}`}>
+            <h3 className={`text-sm font-bold ${saldoDisponivelReal >= 0 ? 'text-emerald-900' : 'text-rose-900'}`}>
               Saldo Disponível Real
             </h3>
             {saldoDisponivelReal >= 0 ? (
               <CheckCircle2 className="w-5 h-5 text-emerald-600" />
             ) : (
-              <AlertCircle className="w-5 h-5 text-red-600" />
+              <AlertCircle className="w-5 h-5 text-rose-600" />
             )}
           </div>
           <div>
-            <p className={`text-3xl font-bold ${saldoDisponivelReal >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+            <p className={`text-3xl font-bold font-mono tracking-tight ${saldoDisponivelReal >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
               {formatCurrency(saldoDisponivelReal)}
             </p>
-            <p className={`text-xs mt-1 font-medium ${saldoDisponivelReal >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            <p className={`text-xs mt-1 font-medium ${saldoDisponivelReal >= 0 ? 'text-emerald-600/80' : 'text-rose-600/80'}`}>
               Livre para contratações
             </p>
           </div>
