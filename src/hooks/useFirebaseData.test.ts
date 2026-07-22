@@ -91,6 +91,37 @@ describe('useFirebaseData Hook', () => {
     ]);
   });
 
+  it('deve assinar a colecao registro_atividades em tempo real quando o usuario estiver logado', () => {
+    const fakeUser = { uid: 'user_123', email: 'test@example.com' };
+    mockOnAuthStateChanged.mockImplementationOnce((callback) => {
+      callback(fakeUser);
+    });
+
+    let registroCallback: any = null;
+    mockOnSnapshot.mockImplementation((ref: any, callback: any) => {
+      if (ref.name === 'registro_atividades') {
+        registroCallback = callback;
+      }
+      return vi.fn();
+    });
+
+    const { result } = renderHook(() => useFirebaseData());
+
+    act(() => {
+      registroCallback({
+        docs: [
+          {
+            data: () => ({ id: 'reg_1', titulo_atividade: 'Entrega de Bola', resumo: 'Entregue', data_inicio: '2026-01-01', data_fim: '2026-01-02', tecnico_responsavel: 'Jules' })
+          }
+        ]
+      });
+    });
+
+    expect(result.current.registroAtividadesRecords).toEqual([
+      { id: 'reg_1', titulo_atividade: 'Entrega de Bola', resumo: 'Entregue', data_inicio: '2026-01-01', data_fim: '2026-01-02', tecnico_responsavel: 'Jules' }
+    ]);
+  });
+
   it('deve chamar as funções de login e logout do Firebase', async () => {
     const { result } = renderHook(() => useFirebaseData());
 

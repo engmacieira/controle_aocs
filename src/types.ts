@@ -73,3 +73,16 @@ export interface ContaBancariaRecord {
 }
 
 export type SortOrder = 'asc' | 'desc';
+
+export interface RegistroAtividadeRecord {
+  id: string;
+  titulo_atividade: string;
+  resumo: string;
+  data_inicio: string; // YYYY-MM-DD
+  data_fim: string; // YYYY-MM-DD
+  tecnico_responsavel: string;
+  aocs_ci_vinculada?: string;
+  relato_detalhado: string;
+  link_drive_midias: string;
+  created_at: any; // Timestamp or number
+}

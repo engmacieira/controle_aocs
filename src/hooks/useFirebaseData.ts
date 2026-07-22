@@ -1,25 +1,42 @@
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
-import { AocsRecord, CiRecord, ContaBancariaRecord } from '../types';
+import { AocsRecord, CiRecord, ContaBancariaRecord, RegistroAtividadeRecord } from '../types';
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, User } from 'firebase/auth';
 
 export function useFirebaseData() {
+  const isMock = typeof window !== 'undefined' && localStorage.getItem('local_mock_mode') === 'true';
+
+  // Mock mode helper to read/write from localStorage
+  const getMockData = (key: string) => {
+    const raw = localStorage.getItem('mock_' + key);
+    return raw ? JSON.parse(raw) : [];
+  };
+
+  const saveMockData = (key: string, data: any[]) => {
+    localStorage.setItem('mock_' + key, JSON.stringify(data));
+  };
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [aocsRecords, setAocsRecords] = useState<AocsRecord[]>([]);
   const [ciRecords, setCiRecords] = useState<CiRecord[]>([]);
   const [extratoRecords, setExtratoRecords] = useState<any[]>([]);
   const [contasRecords, setContasRecords] = useState<ContaBancariaRecord[]>([]);
+  const [registroAtividadesRecords, setRegistroAtividadesRecords] = useState<RegistroAtividadeRecord[]>([]);
 
   useEffect(() => {
+    if (isMock) {
+      setUser({ email: 'tecnico.jules@municipio.gov.br', uid: 'mock_uid_jules' } as any);
+      setLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
     });
 
     return unsubscribe;
-  }, []);
+  }, [isMock]);
 
   useEffect(() => {
     if (!user) {
@@ -27,7 +44,28 @@ export function useFirebaseData() {
       setCiRecords([]);
       setExtratoRecords([]);
       setContasRecords([]);
+      setRegistroAtividadesRecords([]);
       return;
+    }
+
+    if (isMock) {
+      // Load mock lists
+      setAocsRecords(getMockData('aocs'));
+      setCiRecords(getMockData('ci'));
+      setExtratoRecords(getMockData('extrato'));
+      setContasRecords(getMockData('contas').length ? getMockData('contas') : [{ id: '1', nome: 'Banco do Brasil - Geral' }]);
+      setRegistroAtividadesRecords(getMockData('registro_atividades'));
+      
+      // Periodically poll localStorage for modifications
+      const interval = setInterval(() => {
+        setAocsRecords(getMockData('aocs'));
+        setCiRecords(getMockData('ci'));
+        setExtratoRecords(getMockData('extrato'));
+        setContasRecords(getMockData('contas').length ? getMockData('contas') : [{ id: '1', nome: 'Banco do Brasil - Geral' }]);
+        setRegistroAtividadesRecords(getMockData('registro_atividades'));
+      }, 500);
+
+      return () => clearInterval(interval);
     }
 
     const unsubs: (() => void)[] = [];
@@ -51,6 +89,13 @@ export function useFirebaseData() {
     }, (err) => {
       console.error('Error loading extrato:', err);
       alert('Ocorreu um erro ao carregar os dados do extrato. Por favor, tente novamente mais tarde.');
+    }));
+
+    unsubs.push(onSnapshot(collection(db, 'registro_atividades'), (snap) => {
+      setRegistroAtividadesRecords(snap.docs.map(d => d.data() as RegistroAtividadeRecord));
+    }, (err) => {
+      console.error('Error loading registro_atividades:', err);
+      alert('Ocorreu um erro ao carregar os dados de Registro de Atividades. Por favor, tente novamente mais tarde.');
     }));
 
     unsubs.push(onSnapshot(collection(db, 'contas'), (snap) => {
@@ -81,6 +126,17 @@ export function useFirebaseData() {
     const isNew = !item.id;
     const id = isNew ? `${collectionName}_${Date.now()}` : item.id;
     const newItem = { ...item, id };
+    if (isMock) {
+      const data = getMockData(collectionName);
+      const index = data.findIndex(d => d.id === id);
+      if (index >= 0) {
+        data[index] = newItem;
+      } else {
+        data.push(newItem);
+      }
+      saveMockData(collectionName, data);
+      return;
+    }
     try {
       await setDoc(doc(db, collectionName, id), newItem);
     } catch (e: any) {
@@ -91,6 +147,12 @@ export function useFirebaseData() {
 
   const deleteRecord = async (collectionName: string, id: string) => {
     if (!user) return;
+    if (isMock) {
+      const data = getMockData(collectionName);
+      const filtered = data.filter(d => d.id !== id);
+      saveMockData(collectionName, filtered);
+      return;
+    }
     try {
       await deleteDoc(doc(db, collectionName, id));
     } catch (e: any) {
@@ -122,6 +184,7 @@ export function useFirebaseData() {
     ciRecords,
     extratoRecords,
     contasRecords,
+    registroAtividadesRecords,
     saveRecord,
     deleteRecord,
     deleteRecords
