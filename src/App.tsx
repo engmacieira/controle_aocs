@@ -20,7 +20,8 @@ import {
   Menu,
   X,
   Receipt,
-  FolderOpen
+  FolderOpen,
+  History
 } from 'lucide-react';
 
 import { 
@@ -40,6 +41,8 @@ import { ConfirmModal } from './components/ConfirmModal';
 import { useFirebaseData } from './hooks/useFirebaseData';
 import { RegistroAtividades } from './components/RegistroAtividades';
 import { ProjecaoSaldo } from './components/ProjecaoSaldo';
+import { AuditLogs } from './components/AuditLogs';
+import { Administracao } from './components/Administracao';
 
 import { Sidebar } from './components/Sidebar';
 import { MobileHeader } from './components/MobileHeader';
@@ -58,6 +61,7 @@ export default function App() {
     contasRecords,
     registroAtividadesRecords,
     lancamentosFuturosRecords,
+    auditLogs,
     saveRecord,
     deleteRecord,
     deleteRecords
@@ -90,6 +94,7 @@ export default function App() {
     if (path === '/ci') return 'ci';
     if (path === '/registro-atividades') return 'registro_atividades';
     if (path === '/conta-detalhes') return 'conta_detalhes';
+    if (path === '/administracao') return 'administracao';
     return 'relatorio';
   };
 
@@ -209,7 +214,7 @@ export default function App() {
     setIsModalOpen(true);
   };
 
-  const handleTabChange = (tab: 'relatorio' | 'aocs' | 'pedidos' | 'faturamento' | 'ci' | 'espelho' | 'projecao_saldo' | 'conta_detalhes' | 'registro_atividades') => {
+  const handleTabChange = (tab: 'relatorio' | 'aocs' | 'pedidos' | 'faturamento' | 'ci' | 'espelho' | 'projecao_saldo' | 'conta_detalhes' | 'registro_atividades' | 'administracao') => {
     const pathToTab: Record<string, string> = {
       relatorio: '/',
       espelho: '/espelho',
@@ -219,7 +224,8 @@ export default function App() {
       faturamento: '/faturamento',
       ci: '/ci',
       registro_atividades: '/registro-atividades',
-      conta_detalhes: '/conta-detalhes'
+      conta_detalhes: '/conta-detalhes',
+      administracao: '/administracao'
     };
     navigate(pathToTab[tab] || '/');
     if (tab !== 'conta_detalhes') setSelectedConta(null);
@@ -410,6 +416,20 @@ export default function App() {
                       onSaveLancamento={saveRecord}
                       onDeleteLancamento={deleteRecord}
                       showToast={showToast}
+                    />
+                  } />
+                  
+                  <Route path="/administracao" element={
+                    <Administracao 
+                      logs={auditLogs}
+                      dbData={{
+                        aocs: aocsRecords,
+                        ci: ciRecords,
+                        extrato: extratoRecords,
+                        contas: contasRecords,
+                        registro_atividades: registroAtividadesRecords,
+                        lancamentos_futuros: lancamentosFuturosRecords
+                      }}
                     />
                   } />
 

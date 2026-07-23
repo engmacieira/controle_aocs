@@ -30,9 +30,12 @@ export const mockDoc = vi.fn((db: any, collection: string, id?: string) => ({ id
 export const mockCollection = vi.fn((db: any, name: string) => ({ name }));
 export const mockSetDoc = vi.fn();
 export const mockDeleteDoc = vi.fn();
+export const mockUpdateDoc = vi.fn();
+export const mockGetDoc = vi.fn((_docRef?: any) => Promise.resolve({ exists: () => false, data: () => ({}) }));
 export const mockWriteBatch = vi.fn(() => ({
   delete: vi.fn(),
   set: vi.fn(),
+  update: vi.fn(),
   commit: vi.fn(() => Promise.resolve()),
 }));
 export const mockGetDocs = vi.fn();
@@ -43,6 +46,8 @@ vi.mock('firebase/firestore', () => ({
   doc: (db: any, col: string, id?: string) => mockDoc(db, col, id),
   setDoc: (docRef: any, data: any) => mockSetDoc(docRef, data),
   deleteDoc: (docRef: any) => mockDeleteDoc(docRef),
+  updateDoc: (docRef: any, data: any) => mockUpdateDoc(docRef, data),
+  getDoc: (docRef: any) => mockGetDoc(docRef),
   writeBatch: () => mockWriteBatch(),
   getDocs: (ref: any) => mockGetDocs(ref),
   onSnapshot: (ref: any, callback: any, errCallback?: any) => {
