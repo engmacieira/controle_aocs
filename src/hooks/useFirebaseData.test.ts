@@ -152,7 +152,7 @@ describe('useFirebaseData Hook', () => {
     });
 
     expect(mockSetDoc).toHaveBeenCalledTimes(2);
-    expect(mockSetDoc).toHaveBeenNthCalledWith(1,
+    expect(mockSetDoc).toHaveBeenCalledWith(
       expect.objectContaining({ collection: 'aocs' }),
       expect.objectContaining({ aocs: '12', empresa: 'Nova Empresa', valor: 1000 })
     );
@@ -284,8 +284,8 @@ describe('useFirebaseData Hook', () => {
 
     mockWriteBatch.mockImplementationOnce(() => ({
       delete: vi.fn(),
-      set: vi.fn(),
       update: vi.fn(),
+      set: vi.fn(),
       commit: vi.fn().mockRejectedValueOnce(new Error('Batch delete failed'))
     }));
     

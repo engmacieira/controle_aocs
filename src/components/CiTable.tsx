@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { CiRecord, SortOrder, ContaBancariaRecord } from '../types';
-import { ArrowUpDown, Edit3, Trash2, Search, Plus, Sparkles, FileText, Link, HelpCircle, Filter } from 'lucide-react';
+import { ArrowUpDown, Edit3, Trash2, Search, Plus, Sparkles, FileText, Link, HelpCircle, Filter, CheckCircle2, Clock } from 'lucide-react';
 import { Pagination } from './Pagination';
 
 interface CiTableProps {
@@ -20,6 +20,7 @@ interface CiTableProps {
 export function CiTable({ records, contasRecords, onEdit, onDelete, onBulkDelete, onAdd }: CiTableProps) {
   const [searchTerm, setSearchTerm] = React.useState('');
   const [filterConta, setFilterConta] = React.useState<string>('all');
+  const [filterStatus, setFilterStatus] = React.useState<string>('all');
   const [sortField, setSortField] = React.useState<keyof CiRecord>('ci');
   const [sortOrder, setSortOrder] = React.useState<SortOrder>('asc');
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
@@ -34,6 +35,10 @@ export function CiTable({ records, contasRecords, onEdit, onDelete, onBulkDelete
     
     if (filterConta !== 'all') {
       result = result.filter(r => r.contaBancaria === filterConta);
+    }
+
+    if (filterStatus !== 'all') {
+      result = result.filter(r => (r.status || 'Pendente') === filterStatus);
     }
     
     if (searchTerm.trim() !== '') {
@@ -72,12 +77,12 @@ export function CiTable({ records, contasRecords, onEdit, onDelete, onBulkDelete
     });
 
     return result;
-  }, [records, searchTerm, sortField, sortOrder, filterConta]);
+  }, [records, searchTerm, sortField, sortOrder, filterConta, filterStatus]);
 
   // Reset page on search or filter
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, filterConta]);
+  }, [searchTerm, filterConta, filterStatus]);
 
   const totalPages = Math.ceil(filteredRecords.length / pageSize) || 1;
   const paginatedRecords = React.useMemo(() => {
@@ -157,6 +162,20 @@ export function CiTable({ records, contasRecords, onEdit, onDelete, onBulkDelete
               {contasRecords.map(conta => (
                 <option key={conta.id} value={conta.nome}>{conta.nome}</option>
               ))}
+            </select>
+          </div>
+          <div className="relative w-full md:w-48">
+            <Filter className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 outline-hidden text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all bg-slate-50/50 appearance-none"
+            >
+              <option value="all">Todos Status</option>
+              <option value="Pendente">Pendente</option>
+              <option value="Pago">Pago</option>
+              <option value="Atrasado">Atrasado</option>
+              <option value="Dispensado">Dispensado</option>
             </select>
           </div>
           <div className="relative w-full md:w-64">
@@ -286,33 +305,66 @@ export function CiTable({ records, contasRecords, onEdit, onDelete, onBulkDelete
                     {rec.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                   </td>
                   <td className="px-5 py-4 border-b border-slate-100">
-                    {(() => {
-                      const status = rec.status || 'Pendente';
-                      if (status === 'Pago') {
+                    <div className="flex flex-col gap-1.5">
+                      {(() => {
+                        const status = rec.status || 'Pendente';
+                        if (status === 'Pago') {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full uppercase tracking-wider w-max">
+                              Pago
+                            </span>
+                          );
+                        } else if (status === 'Atrasado') {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-100 px-2.5 py-1 rounded-full uppercase tracking-wider w-max">
+                              Atrasado
+                            </span>
+                          );
+                        } else if (status === 'Dispensado') {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full uppercase tracking-wider w-max">
+                              Dispensado
+                            </span>
+                          );
+                        }
                         return (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                            Pago
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-100 px-2.5 py-1 rounded-full uppercase tracking-wider w-max">
+                            Pendente
                           </span>
                         );
-                      } else if (status === 'Atrasado') {
+                      })()}
+                      
+                      {(() => {
+                        const conf = rec.conferenciaExtrato || 'Pendente';
+                        if (conf === 'Sim') {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-[9px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-full uppercase tracking-wider w-max" title="Extrato Conferido">
+                              <CheckCircle2 className="w-3 h-3" />
+                              Conf: Sim
+                            </span>
+                          );
+                        } else if (conf === 'Não') {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-[9px] font-bold text-rose-700 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded-full uppercase tracking-wider w-max" title="Extrato Não Conferido">
+                              <Clock className="w-3 h-3" />
+                              Conf: Não
+                            </span>
+                          );
+                        } else if (conf === 'Dispensado') {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-[9px] font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full uppercase tracking-wider w-max" title="Conferência Dispensada">
+                              Conf: Disp.
+                            </span>
+                          );
+                        }
                         return (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-100 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                            Atrasado
+                          <span className="inline-flex items-center gap-1 text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full uppercase tracking-wider w-max" title="Conferência Pendente">
+                            <Clock className="w-3 h-3" />
+                            Conf: Pend.
                           </span>
                         );
-                      } else if (status === 'Dispensado') {
-                        return (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                            Dispensado
-                          </span>
-                        );
-                      }
-                      return (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-100 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                          Pendente
-                        </span>
-                      );
-                    })()}
+                      })()}
+                    </div>
                   </td>
                   <td className="px-5 py-4 border-b border-slate-100">
                     <div className="space-y-0.5">

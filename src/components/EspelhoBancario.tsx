@@ -10,9 +10,10 @@ interface EspelhoBancarioProps {
   onSave: (collectionName: string, item: any) => void;
   onDelete: (collectionName: string, id: string) => void;
   showToast?: (message: string, type: 'success' | 'error' | 'info') => void;
+  onEditCI?: (ci: CiRecord) => void;
 }
 
-export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSave, onDelete, showToast }: EspelhoBancarioProps) {
+export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSave, onDelete, showToast, onEditCI }: EspelhoBancarioProps) {
   const [contaFiltro, setContaFiltro] = useState(contasRecords.length > 0 ? contasRecords[0].nome : '');
   const [mesAnoFiltro, setMesAnoFiltro] = useState<string>('');
   const [tipoFiltro, setTipoFiltro] = useState<'todos' | 'entrada' | 'saida'>('todos');
@@ -358,7 +359,24 @@ export function EspelhoBancario({ extratoRecords, ciRecords, contasRecords, onSa
                     <td className="px-4 py-3 text-sm text-slate-600 whitespace-nowrap">
                       {new Date(item.data + 'T00:00:00').toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                     </td>
-                    <td className="px-4 py-3 text-sm text-slate-900 font-medium whitespace-nowrap">{item.refCi || '-'}</td>
+                    <td className="px-4 py-3 text-sm text-slate-900 font-medium whitespace-nowrap">
+                      {item.refCi ? (
+                        <button
+                          onClick={() => {
+                            const ci = ciRecords.find(c => c.ci === item.refCi);
+                            if (ci && onEditCI) {
+                              onEditCI(ci);
+                            }
+                          }}
+                          className={`focus:outline-none transition-colors ${ciRecords.some(c => c.ci === item.refCi) ? 'text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer' : ''}`}
+                          disabled={!ciRecords.some(c => c.ci === item.refCi)}
+                        >
+                          {item.refCi}
+                        </button>
+                      ) : (
+                        '-'
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-sm text-slate-600">{item.descricao}</td>
                     <td className="px-4 py-3 text-sm text-slate-500">{item.dotacao || '-'}</td>
                     <td className="px-4 py-3 text-sm whitespace-nowrap">

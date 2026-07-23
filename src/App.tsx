@@ -106,6 +106,7 @@ export default function App() {
   // --- Modal Control State ---
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [itemToEdit, setItemToEdit] = React.useState<any | null>(null);
+  const [modalOverrideTab, setModalOverrideTab] = React.useState<string | null>(null);
 
   // --- Confirm Modal State ---
   const [confirmConfig, setConfirmConfig] = React.useState<{
@@ -204,13 +205,23 @@ export default function App() {
     });
   };
 
-  const handleEditClick = (item: any) => {
+  const handleEditClick = (item: any, overrideTab?: string) => {
     setItemToEdit(item);
+    if (overrideTab) {
+      setModalOverrideTab(overrideTab);
+    } else {
+      setModalOverrideTab(null);
+    }
     setIsModalOpen(true);
   };
 
-  const handleAddClick = () => {
+  const handleAddClick = (overrideTab?: string) => {
     setItemToEdit(null);
+    if (overrideTab) {
+      setModalOverrideTab(overrideTab);
+    } else {
+      setModalOverrideTab(null);
+    }
     setIsModalOpen(true);
   };
 
@@ -403,6 +414,7 @@ export default function App() {
                       onSave={saveRecord}
                       onDelete={deleteRecord}
                       showToast={showToast}
+                      onEditCI={(ci) => handleEditClick(ci, 'ci')}
                     />
                   } />
                   
@@ -448,8 +460,9 @@ export default function App() {
         onClose={() => {
           setIsModalOpen(false);
           setItemToEdit(null);
+          setModalOverrideTab(null);
         }}
-        activeTab={activeTab}
+        activeTab={modalOverrideTab || activeTab}
         itemToEdit={itemToEdit}
         onSave={handleSave}
         aocsRecords={aocsRecords}
