@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
+import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch, updateDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
-import { AocsRecord, CiRecord, ContaBancariaRecord, RegistroAtividadeRecord, LancamentoFuturo } from '../types';
+import { AocsRecord, CiRecord, ContaBancariaRecord, RegistroAtividadeRecord, LancamentoFuturo, AuditLogRecord } from '../types';
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, User } from 'firebase/auth';
 
 export function useFirebaseData() {
@@ -24,6 +24,7 @@ export function useFirebaseData() {
   const [contasRecords, setContasRecords] = useState<ContaBancariaRecord[]>([]);
   const [registroAtividadesRecords, setRegistroAtividadesRecords] = useState<RegistroAtividadeRecord[]>([]);
   const [lancamentosFuturosRecords, setLancamentosFuturosRecords] = useState<LancamentoFuturo[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLogRecord[]>([]);
 
   useEffect(() => {
     if (isMock) {
@@ -47,6 +48,7 @@ export function useFirebaseData() {
       setContasRecords([]);
       setRegistroAtividadesRecords([]);
       setLancamentosFuturosRecords([]);
+      setAuditLogs([]);
       return;
     }
 
@@ -58,6 +60,7 @@ export function useFirebaseData() {
       setContasRecords(getMockData('contas').length ? getMockData('contas') : [{ id: '1', nome: 'Banco do Brasil - Geral' }]);
       setRegistroAtividadesRecords(getMockData('registro_atividades'));
       setLancamentosFuturosRecords(getMockData('lancamentos_futuros'));
+      setAuditLogs(getMockData('audit_logs'));
       
       // Periodically poll localStorage for modifications
       const interval = setInterval(() => {
@@ -67,6 +70,7 @@ export function useFirebaseData() {
         setContasRecords(getMockData('contas').length ? getMockData('contas') : [{ id: '1', nome: 'Banco do Brasil - Geral' }]);
         setRegistroAtividadesRecords(getMockData('registro_atividades'));
         setLancamentosFuturosRecords(getMockData('lancamentos_futuros'));
+        setAuditLogs(getMockData('audit_logs'));
       }, 500);
 
       return () => clearInterval(interval);
@@ -75,45 +79,51 @@ export function useFirebaseData() {
     const unsubs: (() => void)[] = [];
 
     unsubs.push(onSnapshot(collection(db, 'aocs'), (snap) => {
-      setAocsRecords(snap.docs.map(d => d.data() as AocsRecord));
+      setAocsRecords(snap.docs.map(d => d.data() as AocsRecord).filter((r: any) => !r.deletedAt));
     }, (err) => {
       console.error('Error loading AOCS:', err);
       alert('Ocorreu um erro ao carregar os dados de AOCS. Por favor, tente novamente mais tarde.');
     }));
 
     unsubs.push(onSnapshot(collection(db, 'ci'), (snap) => {
-      setCiRecords(snap.docs.map(d => d.data() as CiRecord));
+      setCiRecords(snap.docs.map(d => d.data() as CiRecord).filter((r: any) => !r.deletedAt));
     }, (err) => {
       console.error('Error loading CI:', err);
       alert('Ocorreu um erro ao carregar os dados de CI. Por favor, tente novamente mais tarde.');
     }));
 
     unsubs.push(onSnapshot(collection(db, 'extrato'), (snap) => {
-      setExtratoRecords(snap.docs.map(d => d.data() as any));
+      setExtratoRecords(snap.docs.map(d => d.data() as any).filter((r: any) => !r.deletedAt));
     }, (err) => {
       console.error('Error loading extrato:', err);
       alert('Ocorreu um erro ao carregar os dados do extrato. Por favor, tente novamente mais tarde.');
     }));
 
     unsubs.push(onSnapshot(collection(db, 'registro_atividades'), (snap) => {
-      setRegistroAtividadesRecords(snap.docs.map(d => d.data() as RegistroAtividadeRecord));
+      setRegistroAtividadesRecords(snap.docs.map(d => d.data() as RegistroAtividadeRecord).filter((r: any) => !r.deletedAt));
     }, (err) => {
       console.error('Error loading registro_atividades:', err);
       alert('Ocorreu um erro ao carregar os dados de Registro de Atividades. Por favor, tente novamente mais tarde.');
     }));
     
     unsubs.push(onSnapshot(collection(db, 'lancamentos_futuros'), (snap) => {
-      setLancamentosFuturosRecords(snap.docs.map(d => d.data() as LancamentoFuturo));
+      setLancamentosFuturosRecords(snap.docs.map(d => d.data() as LancamentoFuturo).filter((r: any) => !r.deletedAt));
     }, (err) => {
       console.error('Error loading lancamentos_futuros:', err);
       alert('Ocorreu um erro ao carregar os lançamentos futuros. Por favor, tente novamente mais tarde.');
     }));
 
     unsubs.push(onSnapshot(collection(db, 'contas'), (snap) => {
-      setContasRecords(snap.docs.map(d => d.data() as ContaBancariaRecord));
+      setContasRecords(snap.docs.map(d => d.data() as ContaBancariaRecord).filter((r: any) => !r.deletedAt));
     }, (err) => {
       console.error('Error loading contas:', err);
       alert('Ocorreu um erro ao carregar as contas bancárias. Por favor, tente novamente mais tarde.');
+    }));
+
+    unsubs.push(onSnapshot(collection(db, 'audit_logs'), (snap) => {
+      setAuditLogs(snap.docs.map(d => d.data() as AuditLogRecord));
+    }, (err) => {
+      console.error('Error loading audit_logs:', err);
     }));
 
     return () => unsubs.forEach(fn => fn());
@@ -149,7 +159,28 @@ export function useFirebaseData() {
       return;
     }
     try {
+      let previousData = null;
+      if (!isNew) {
+        const docSnap = await getDoc(doc(db, collectionName, id));
+        if (docSnap.exists()) {
+          previousData = docSnap.data();
+        }
+      }
+
       await setDoc(doc(db, collectionName, id), newItem);
+
+      const logId = doc(collection(db, 'audit_logs')).id;
+      const logRecord: AuditLogRecord = {
+        id: logId,
+        userEmail: user.email || 'unknown',
+        action: isNew ? 'CREATE' : 'UPDATE',
+        collectionName,
+        recordId: id,
+        timestamp: new Date().toISOString(),
+        previousData: previousData || null,
+        newData: newItem
+      };
+      await setDoc(doc(db, 'audit_logs', logId), logRecord);
     } catch (e: any) {
       console.error('Error saving:', e);
       alert('Ocorreu um erro ao salvar o registro. Tente novamente mais tarde.');
@@ -165,7 +196,28 @@ export function useFirebaseData() {
       return;
     }
     try {
-      await deleteDoc(doc(db, collectionName, id));
+      const docRef = doc(db, collectionName, id);
+      const docSnap = await getDoc(docRef);
+      let previousData = null;
+      if (docSnap.exists()) {
+        previousData = docSnap.data();
+      }
+
+      const deletedAt = new Date().toISOString();
+      await updateDoc(docRef, { deletedAt });
+
+      const logId = doc(collection(db, 'audit_logs')).id;
+      const logRecord: AuditLogRecord = {
+        id: logId,
+        userEmail: user.email || 'unknown',
+        action: 'DELETE',
+        collectionName,
+        recordId: id,
+        timestamp: deletedAt,
+        previousData: previousData || null,
+        newData: { deletedAt }
+      };
+      await setDoc(doc(db, 'audit_logs', logId), logRecord);
     } catch (e: any) {
       console.error('Error deleting:', e);
       alert('Ocorreu um erro ao excluir o registro. Tente novamente mais tarde.');
@@ -176,9 +228,30 @@ export function useFirebaseData() {
     if (!user) return;
     try {
       const batch = writeBatch(db);
-      ids.forEach(id => {
-        batch.delete(doc(db, collectionName, id));
-      });
+      for (const id of ids) {
+        const docRef = doc(db, collectionName, id);
+        const docSnap = await getDoc(docRef);
+        let previousData = null;
+        if (docSnap.exists()) {
+          previousData = docSnap.data();
+        }
+
+        const deletedAt = new Date().toISOString();
+        batch.update(docRef, { deletedAt });
+
+        const logId = doc(collection(db, 'audit_logs')).id;
+        const logRecord: AuditLogRecord = {
+          id: logId,
+          userEmail: user.email || 'unknown',
+          action: 'DELETE',
+          collectionName,
+          recordId: id,
+          timestamp: deletedAt,
+          previousData: previousData || null,
+          newData: { deletedAt }
+        };
+        batch.set(doc(db, 'audit_logs', logId), logRecord);
+      }
       await batch.commit();
     } catch (e: any) {
       console.error('Error deleting records:', e);
@@ -197,6 +270,7 @@ export function useFirebaseData() {
     contasRecords,
     registroAtividadesRecords,
     lancamentosFuturosRecords,
+    auditLogs,
     saveRecord,
     deleteRecord,
     deleteRecords

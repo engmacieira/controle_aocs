@@ -8,6 +8,7 @@ import {
   mockOnSnapshot,
   mockSetDoc,
   mockDeleteDoc,
+  mockUpdateDoc,
   mockWriteBatch
 } from '../test/mocks/firebase';
 
@@ -150,8 +151,8 @@ describe('useFirebaseData Hook', () => {
       await result.current.saveRecord('aocs', itemToSave);
     });
 
-    expect(mockSetDoc).toHaveBeenCalledTimes(1);
-    expect(mockSetDoc).toHaveBeenCalledWith(
+    expect(mockSetDoc).toHaveBeenCalledTimes(2);
+    expect(mockSetDoc).toHaveBeenNthCalledWith(1,
       expect.objectContaining({ collection: 'aocs' }),
       expect.objectContaining({ aocs: '12', empresa: 'Nova Empresa', valor: 1000 })
     );
@@ -169,9 +170,10 @@ describe('useFirebaseData Hook', () => {
       await result.current.deleteRecord('aocs', 'aocs_123');
     });
 
-    expect(mockDeleteDoc).toHaveBeenCalledTimes(1);
-    expect(mockDeleteDoc).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'aocs_123', collection: 'aocs' })
+    expect(mockUpdateDoc).toHaveBeenCalledTimes(1);
+    expect(mockUpdateDoc).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'aocs_123', collection: 'aocs' }),
+      expect.objectContaining({ deletedAt: expect.any(String) })
     );
   });
 
@@ -261,7 +263,7 @@ describe('useFirebaseData Hook', () => {
       callback(fakeUser);
     });
 
-    mockDeleteDoc.mockRejectedValueOnce(new Error('Delete failed'));
+    mockUpdateDoc.mockRejectedValueOnce(new Error('Delete failed'));
     const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
 
     const { result } = renderHook(() => useFirebaseData());
@@ -283,6 +285,7 @@ describe('useFirebaseData Hook', () => {
     mockWriteBatch.mockImplementationOnce(() => ({
       delete: vi.fn(),
       set: vi.fn(),
+      update: vi.fn(),
       commit: vi.fn().mockRejectedValueOnce(new Error('Batch delete failed'))
     }));
     

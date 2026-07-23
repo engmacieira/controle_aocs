@@ -14,7 +14,7 @@ import {
 interface FormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  activeTab: 'aocs' | 'pedidos' | 'faturamento' | 'ci' | 'relatorio' | 'espelho';
+  activeTab: string;
   itemToEdit: any | null; // Can be any of the records
   onSave: (item: any) => void;
   

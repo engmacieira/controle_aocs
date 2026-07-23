@@ -99,3 +99,14 @@ export interface RegistroAtividadeRecord {
   link_drive_midias: string;
   created_at: any; // Timestamp or number
 }
+
+export interface AuditLogRecord {
+  id: string;
+  userEmail: string;
+  action: 'CREATE' | 'UPDATE' | 'DELETE';
+  collectionName: string;
+  recordId: string;
+  timestamp: string;
+  previousData?: any;
+  newData?: any;
+}

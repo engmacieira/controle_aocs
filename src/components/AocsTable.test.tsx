@@ -169,7 +169,7 @@ describe('AocsTable Component', () => {
     const resumoHeader = screen.getByText('Resumo Contratação');
     const empresaHeader = screen.getByText('Fornecedor');
     const contratoArpHeader = screen.getByText('Contrato/ARP');
-    const processoHeader = screen.getByText('Processo Licitatório');
+    const processoHeader = screen.getByText('Processo');
     const valorHeader = screen.getByText('Valor (R$)');
 
     // Clica para ordenar por outras colunas
