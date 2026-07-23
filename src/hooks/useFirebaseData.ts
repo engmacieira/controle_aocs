@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch, updateDoc, getDoc, getDocs } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { AocsRecord, CiRecord, ContaBancariaRecord, RegistroAtividadeRecord, LancamentoFuturo, AuditLogRecord } from '../types';
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, User } from 'firebase/auth';
+import { onAuthStateChanged, signInWithRedirect, GoogleAuthProvider, signOut, User } from 'firebase/auth';
 
 export function useFirebaseData() {
   const isMock = typeof window !== 'undefined' && localStorage.getItem('local_mock_mode') === 'true';
@@ -164,9 +164,10 @@ export function useFirebaseData() {
   const signIn = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
+      await signInWithRedirect(auth, provider);
+    } catch (error: any) {
       console.error('Login error', error);
+      alert('Ocorreu um erro ao fazer login: ' + (error.message || 'Erro desconhecido.'));
     }
   };
 

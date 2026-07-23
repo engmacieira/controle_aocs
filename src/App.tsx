@@ -205,9 +205,9 @@ export default function App() {
     });
   };
 
-  const handleEditClick = (item: any, overrideTab?: string) => {
+  const handleEditClick = (item: any, overrideTab?: string | any) => {
     setItemToEdit(item);
-    if (overrideTab) {
+    if (typeof overrideTab === 'string') {
       setModalOverrideTab(overrideTab);
     } else {
       setModalOverrideTab(null);
@@ -215,9 +215,9 @@ export default function App() {
     setIsModalOpen(true);
   };
 
-  const handleAddClick = (overrideTab?: string) => {
+  const handleAddClick = (overrideTab?: string | any) => {
     setItemToEdit(null);
-    if (overrideTab) {
+    if (typeof overrideTab === 'string') {
       setModalOverrideTab(overrideTab);
     } else {
       setModalOverrideTab(null);
