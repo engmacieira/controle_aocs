@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch, updateDoc, getDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch, updateDoc, getDoc, getDocs } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { AocsRecord, CiRecord, ContaBancariaRecord, RegistroAtividadeRecord, LancamentoFuturo, AuditLogRecord } from '../types';
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, User } from 'firebase/auth';
@@ -32,8 +32,40 @@ export function useFirebaseData() {
       setLoading(false);
       return;
     }
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          // Check if user is allowed
+          const email = user.email?.toLowerCase() || '';
+          const usersSnapshot = await getDocs(collection(db, 'usuarios_permitidos'));
+          
+          if (usersSnapshot.empty) {
+            // First user ever becomes admin
+            const id = email.replace(/[^a-z0-9]/g, '_');
+            await setDoc(doc(db, 'usuarios_permitidos', id), {
+              email: email,
+              role: 'admin'
+            });
+            setUser(user);
+          } else {
+            // Check if email is in list
+            const allowedUsers = usersSnapshot.docs.map(d => d.data().email);
+            if (allowedUsers.includes(email)) {
+              setUser(user);
+            } else {
+              alert('Este e-mail não possui permissão de acesso. Entre em contato com o administrador.');
+              await signOut(auth);
+              setUser(null);
+            }
+          }
+        } catch (error) {
+          console.error('Auth verification error:', error);
+          await signOut(auth);
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 

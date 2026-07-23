@@ -31,24 +31,32 @@ describe('useFirebaseData Hook', () => {
     expect(result.current.ciRecords).toEqual([]);
   });
 
-  it('deve atualizar o usuário e parar de carregar quando o onAuthStateChanged retornar o usuário', () => {
+  it('deve atualizar o usuário e parar de carregar quando o onAuthStateChanged retornar o usuário', async () => {
     const fakeUser = { uid: 'user_123', email: 'test@example.com' };
     
+    let authCallback: any = null;
     mockOnAuthStateChanged.mockImplementationOnce((callback) => {
-      callback(fakeUser);
+      authCallback = callback;
     });
 
     const { result } = renderHook(() => useFirebaseData());
+
+    if (authCallback) {
+      await act(async () => {
+        await authCallback(fakeUser);
+      });
+    }
 
     expect(result.current.user).toEqual(fakeUser);
     expect(result.current.loading).toBe(false);
   });
 
-  it('deve assinar as coleções do Firestore em tempo real quando o usuário estiver logado', () => {
+  it('deve assinar as coleções do Firestore em tempo real quando o usuário estiver logado', async () => {
     const fakeUser = { uid: 'user_123', email: 'test@example.com' };
     
+    let authCallback: any = null;
     mockOnAuthStateChanged.mockImplementationOnce((callback) => {
-      callback(fakeUser);
+      authCallback = callback;
     });
 
     let aocsCallback: any = null;
@@ -64,6 +72,12 @@ describe('useFirebaseData Hook', () => {
     });
 
     const { result } = renderHook(() => useFirebaseData());
+
+    if (authCallback) {
+      await act(async () => {
+        await authCallback(fakeUser);
+      });
+    }
 
     // Disparar atualizações do onSnapshot manualmente
     act(() => {
@@ -92,10 +106,11 @@ describe('useFirebaseData Hook', () => {
     ]);
   });
 
-  it('deve assinar a colecao registro_atividades em tempo real quando o usuario estiver logado', () => {
+  it('deve assinar a colecao registro_atividades em tempo real quando o usuario estiver logado', async () => {
     const fakeUser = { uid: 'user_123', email: 'test@example.com' };
+    let authCallback: any = null;
     mockOnAuthStateChanged.mockImplementationOnce((callback) => {
-      callback(fakeUser);
+      authCallback = callback;
     });
 
     let registroCallback: any = null;
@@ -107,6 +122,12 @@ describe('useFirebaseData Hook', () => {
     });
 
     const { result } = renderHook(() => useFirebaseData());
+
+    if (authCallback) {
+      await act(async () => {
+        await authCallback(fakeUser);
+      });
+    }
 
     act(() => {
       registroCallback({
@@ -139,11 +160,18 @@ describe('useFirebaseData Hook', () => {
 
   it('deve salvar um registro no Firestore se o usuário estiver logado', async () => {
     const fakeUser = { uid: 'user_123', email: 'test@example.com' };
+    let authCallback: any = null;
     mockOnAuthStateChanged.mockImplementationOnce((callback) => {
-      callback(fakeUser);
+      authCallback = callback;
     });
 
     const { result } = renderHook(() => useFirebaseData());
+
+    if (authCallback) {
+      await act(async () => {
+        await authCallback(fakeUser);
+      });
+    }
 
     const itemToSave = { aocs: '12', empresa: 'Nova Empresa', valor: 1000 };
 
@@ -160,11 +188,18 @@ describe('useFirebaseData Hook', () => {
 
   it('deve deletar um registro do Firestore se o usuário estiver logado', async () => {
     const fakeUser = { uid: 'user_123', email: 'test@example.com' };
+    let authCallback: any = null;
     mockOnAuthStateChanged.mockImplementationOnce((callback) => {
-      callback(fakeUser);
+      authCallback = callback;
     });
 
     const { result } = renderHook(() => useFirebaseData());
+
+    if (authCallback) {
+      await act(async () => {
+        await authCallback(fakeUser);
+      });
+    }
 
     await act(async () => {
       await result.current.deleteRecord('aocs', 'aocs_123');
@@ -179,11 +214,18 @@ describe('useFirebaseData Hook', () => {
 
   it('deve deletar múltiplos registros do Firestore se o usuário estiver logado', async () => {
     const fakeUser = { uid: 'user_123', email: 'test@example.com' };
+    let authCallback: any = null;
     mockOnAuthStateChanged.mockImplementationOnce((callback) => {
-      callback(fakeUser);
+      authCallback = callback;
     });
 
     const { result } = renderHook(() => useFirebaseData());
+
+    if (authCallback) {
+      await act(async () => {
+        await authCallback(fakeUser);
+      });
+    }
 
     await act(async () => {
       await result.current.deleteRecords('aocs', ['id_1', 'id_2']);
@@ -192,10 +234,11 @@ describe('useFirebaseData Hook', () => {
     expect(mockWriteBatch).toHaveBeenCalled();
   });
 
-  it('deve tratar erro ao carregar AOCS (onSnapshot error)', () => {
+  it('deve tratar erro ao carregar AOCS (onSnapshot error)', async () => {
     const fakeUser = { uid: 'user_123', email: 'test@example.com' };
+    let authCallback: any = null;
     mockOnAuthStateChanged.mockImplementationOnce((callback) => {
-      callback(fakeUser);
+      authCallback = callback;
     });
 
     let aocsErrorCallback: any = null;
@@ -210,6 +253,12 @@ describe('useFirebaseData Hook', () => {
     const consoleErrorMock = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     renderHook(() => useFirebaseData());
+
+    if (authCallback) {
+      await act(async () => {
+        await authCallback(fakeUser);
+      });
+    }
 
     act(() => {
       if (aocsErrorCallback) {
@@ -240,14 +289,21 @@ describe('useFirebaseData Hook', () => {
 
   it('deve tratar erro ao salvar registro', async () => {
     const fakeUser = { uid: 'user_123', email: 'test@example.com' };
+    let authCallback: any = null;
     mockOnAuthStateChanged.mockImplementationOnce((callback) => {
-      callback(fakeUser);
+      authCallback = callback;
     });
 
     mockSetDoc.mockRejectedValueOnce(new Error('Save failed'));
     const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
 
     const { result } = renderHook(() => useFirebaseData());
+
+    if (authCallback) {
+      await act(async () => {
+        await authCallback(fakeUser);
+      });
+    }
 
     await act(async () => {
       await result.current.saveRecord('aocs', { id: '1' });
@@ -259,14 +315,21 @@ describe('useFirebaseData Hook', () => {
 
   it('deve tratar erro ao deletar registro', async () => {
     const fakeUser = { uid: 'user_123', email: 'test@example.com' };
+    let authCallback: any = null;
     mockOnAuthStateChanged.mockImplementationOnce((callback) => {
-      callback(fakeUser);
+      authCallback = callback;
     });
 
     mockUpdateDoc.mockRejectedValueOnce(new Error('Delete failed'));
     const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
 
     const { result } = renderHook(() => useFirebaseData());
+
+    if (authCallback) {
+      await act(async () => {
+        await authCallback(fakeUser);
+      });
+    }
 
     await act(async () => {
       await result.current.deleteRecord('aocs', '1');
@@ -278,13 +341,13 @@ describe('useFirebaseData Hook', () => {
 
   it('deve tratar erro ao deletar multiplos registros', async () => {
     const fakeUser = { uid: 'user_123', email: 'test@example.com' };
+    let authCallback: any = null;
     mockOnAuthStateChanged.mockImplementationOnce((callback) => {
-      callback(fakeUser);
+      authCallback = callback;
     });
 
     mockWriteBatch.mockImplementationOnce(() => ({
       delete: vi.fn(),
-      update: vi.fn(),
       set: vi.fn(),
       commit: vi.fn().mockRejectedValueOnce(new Error('Batch delete failed'))
     }));
@@ -292,6 +355,12 @@ describe('useFirebaseData Hook', () => {
     const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
 
     const { result } = renderHook(() => useFirebaseData());
+
+    if (authCallback) {
+      await act(async () => {
+        await authCallback(fakeUser);
+      });
+    }
 
     await act(async () => {
       await result.current.deleteRecords('aocs', ['1', '2']);

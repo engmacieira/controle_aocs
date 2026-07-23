@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { Download, Upload, AlertCircle, CheckCircle2, History } from 'lucide-react';
+import { Download, Upload, AlertCircle, CheckCircle2, History, Users } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { writeBatch, doc, collection } from 'firebase/firestore';
 import { AuditLogs } from './AuditLogs';
+import { UsuariosPermitidos } from './UsuariosPermitidos';
 
 interface AdministracaoProps {
   logs: any[];
@@ -10,7 +11,7 @@ interface AdministracaoProps {
 }
 
 export function Administracao({ logs, dbData }: AdministracaoProps) {
-  const [activeTab, setActiveTab] = useState<'backup' | 'logs'>('backup');
+  const [activeTab, setActiveTab] = useState<'backup' | 'logs' | 'users'>('backup');
   const [restoring, setRestoring] = useState(false);
   const [status, setStatus] = useState<{type: 'success' | 'error' | null, message: string}>({ type: null, message: '' });
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -102,6 +103,19 @@ export function Administracao({ logs, dbData }: AdministracaoProps) {
               Logs de Auditoria
             </div>
           </button>
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`py-4 px-4 font-medium text-sm border-b-2 transition-colors ${
+              activeTab === 'users'
+                ? 'border-indigo-600 text-indigo-600'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Controle de Acesso
+            </div>
+          </button>
         </div>
       </div>
 
@@ -173,6 +187,10 @@ export function Administracao({ logs, dbData }: AdministracaoProps) {
           <div className="-mx-6 -my-6">
             <AuditLogs logs={logs} />
           </div>
+        )}
+
+        {activeTab === 'users' && (
+          <UsuariosPermitidos />
         )}
       </div>
     </div>

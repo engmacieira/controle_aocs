@@ -72,5 +72,10 @@ service cloud.firestore {
       // or allow create, update, delete for simplicity and matching the others
       allow update, delete: if isSignedIn();
     }
+    match /usuarios_permitidos/{userId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn() && isValidId(userId);
+      allow delete: if isSignedIn() && isValidId(userId);
+    }
   }
 }
