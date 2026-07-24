@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch, updateDoc, getDoc, getDocs } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { AocsRecord, CiRecord, ContaBancariaRecord, RegistroAtividadeRecord, LancamentoFuturo, AuditLogRecord } from '../types';
-import { onAuthStateChanged, signInWithRedirect, GoogleAuthProvider, signOut, User } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, User } from 'firebase/auth';
 
 export function useFirebaseData() {
   const isMock = typeof window !== 'undefined' && localStorage.getItem('local_mock_mode') === 'true';
@@ -32,6 +32,14 @@ export function useFirebaseData() {
       setLoading(false);
       return;
     }
+
+    // Process redirect result if coming back from a redirect login flow
+    getRedirectResult(auth).catch((error) => {
+      if (error && error.code !== 'auth/popup-closed-by-user') {
+        console.error('Redirect result error:', error);
+      }
+    });
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
@@ -49,17 +57,18 @@ export function useFirebaseData() {
             setUser(user);
           } else {
             // Check if email is in list
-            const allowedUsers = usersSnapshot.docs.map(d => d.data().email);
+            const allowedUsers = usersSnapshot.docs.map(d => d.data().email?.toLowerCase());
             if (allowedUsers.includes(email)) {
               setUser(user);
             } else {
-              alert('Este e-mail não possui permissão de acesso. Entre em contato com o administrador.');
+              alert(`O e-mail ${email} não possui permissão de acesso. Entre em contato com o administrador.`);
               await signOut(auth);
               setUser(null);
             }
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error('Auth verification error:', error);
+          alert('Erro ao verificar permissões de acesso: ' + (error?.message || 'Acesso não autorizado ou erro de conexão.'));
           await signOut(auth);
           setUser(null);
         }
@@ -163,11 +172,22 @@ export function useFirebaseData() {
 
   const signIn = async () => {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
     try {
-      await signInWithRedirect(auth, provider);
+      await signInWithPopup(auth, provider);
     } catch (error: any) {
-      console.error('Login error', error);
-      alert('Ocorreu um erro ao fazer login: ' + (error.message || 'Erro desconhecido.'));
+      console.warn('Popup login error/blocked, attempting redirect fallback:', error);
+      if (error?.code === 'auth/popup-blocked' || error?.code === 'auth/popup-closed-by-user') {
+        try {
+          await signInWithRedirect(auth, provider);
+        } catch (redirectErr: any) {
+          console.error('Redirect login error', redirectErr);
+          alert('Ocorreu um erro ao fazer login: ' + (redirectErr.message || 'Erro desconhecido.'));
+        }
+      } else {
+        console.error('Login error', error);
+        alert('Ocorreu um erro ao fazer login: ' + (error.message || 'Erro desconhecido.'));
+      }
     }
   };
 

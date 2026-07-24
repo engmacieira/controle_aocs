@@ -10,8 +10,12 @@ export const mockOnAuthStateChanged = vi.fn();
 export const mockSignInWithRedirect = vi.fn();
 export const mockSignOut = vi.fn();
 
+export const mockSignInWithPopup = vi.fn();
+
 // Usando uma classe real de JS no mock
-class MockGoogleAuthProvider {}
+class MockGoogleAuthProvider {
+  setCustomParameters = vi.fn();
+}
 
 vi.mock('firebase/auth', () => ({
   getAuth: vi.fn(() => ({})),
@@ -20,8 +24,10 @@ vi.mock('firebase/auth', () => ({
     return vi.fn(); // unsubscribe function
   },
   signInWithRedirect: (auth: any, provider: any) => mockSignInWithRedirect(auth, provider),
+  signInWithPopup: (auth: any, provider: any) => mockSignInWithPopup(auth, provider),
   signOut: (auth: any) => mockSignOut(auth),
   GoogleAuthProvider: MockGoogleAuthProvider,
+  getRedirectResult: vi.fn(() => Promise.resolve(null)),
 }));
 
 // Mock do Firestore

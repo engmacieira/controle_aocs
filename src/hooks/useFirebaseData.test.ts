@@ -3,7 +3,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useFirebaseData } from './useFirebaseData';
 import { 
   mockOnAuthStateChanged, 
-  mockSignInWithRedirect, 
+  mockSignInWithRedirect,
+  mockSignInWithPopup,
   mockSignOut, 
   mockOnSnapshot,
   mockSetDoc,
@@ -131,7 +132,7 @@ describe('useFirebaseData Hook', () => {
     await act(async () => {
       await result.current.signIn();
     });
-    expect(mockSignInWithRedirect).toHaveBeenCalledTimes(1);
+    expect(mockSignInWithPopup).toHaveBeenCalledTimes(1);
 
     await act(async () => {
       await result.current.logOut();
@@ -229,7 +230,7 @@ describe('useFirebaseData Hook', () => {
   });
 
   it('deve tratar erro de login', async () => {
-    mockSignInWithRedirect.mockRejectedValueOnce(new Error('Login failed'));
+    mockSignInWithPopup.mockRejectedValueOnce(new Error('Login failed'));
     const consoleErrorMock = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     const { result } = renderHook(() => useFirebaseData());
